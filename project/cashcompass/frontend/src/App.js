@@ -86,12 +86,11 @@ function App() {
         setEntriesLoading(false);
       }
     };
-
     const loadSummary = async () => {
       try {
         setSummaryLoading(true);
         setSummaryError('');
-        const data = await fetchSummary();  // this hits your DeepSeek backend
+        const data = await fetchSummary();  
         setSummary(data);
       } catch (err) {
         console.error("Summary error:", err);
