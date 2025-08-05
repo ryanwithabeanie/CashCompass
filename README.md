@@ -88,7 +88,7 @@ Write a short, human-friendly summary comparing both weeks, and provide a sugges
 
 ## File Structure Overview
 
-
+<pre><code>'''
 cashcompass/
 ├── backend/
 │   ├── models/
@@ -103,7 +103,7 @@ cashcompass/
 │   │   │   ├── entryService.js
 │   │   │   └── summaryService.js
 │   │   └── index.js
-├── README.md
+├── README.md'''</code></pre>
 
 
 ## Completed Tasks 
