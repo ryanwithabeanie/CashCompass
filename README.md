@@ -24,17 +24,17 @@ CashCompass is a personal finance tracker built with the MERN stack (MongoDB, Ex
 
 ### 1. Clone the Repository
 
-bash
-git clone https://github.com/yourusername/cashcompass.git
+<pre><code>
+git clone https://github.com/ryanwithabeanie/cashcompass.git
 cd cashcompass
-
+</code></pre>
 
 ### 2. Backend Setup
 
-bash
+<pre><code>
 cd backend
 npm install
-
+</code></pre>
 
 Create a .env file inside the backend folder and add the following:
 
@@ -46,17 +46,17 @@ OPENROUTER_API_KEY=your_openrouter_api_key
 
 Start the backend server:
 
-bash
+<pre><code>
 npm run dev
-
+</code></pre>
 
 ### 3. Frontend Setup
 
-bash
+<pre><code>
 cd ../frontend
 npm install
 npm start
-
+</code></pre>
 
 The frontend will run at http://localhost:3000.
 
