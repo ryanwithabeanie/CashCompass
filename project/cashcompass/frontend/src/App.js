@@ -3,6 +3,11 @@ import AddEntryForm from './AddEntryForm';
 import { fetchEntries } from './services/entryService';
 import { fetchSummary } from './services/summaryService';
 import { marked } from 'marked';
+import Login from "./Login";
+
+
+
+
 
 function App() {
   const [entries, setEntries] = useState([]);
@@ -103,8 +108,22 @@ function App() {
     loadEntries();
     loadSummary();
   }, []);
+const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) setUser({}); // optionally fetch /me later
+}, []);
+
+
+
+
 
   console.log("Summary in frontend:", summary);
+
+  if (!user) {
+  return <Login onLoggedIn={setUser} />;
+}
 
   return (
     <div
@@ -151,6 +170,14 @@ function App() {
             border: '1px solid #ddd',
           }}
         >
+
+          <button
+  onClick={() => { localStorage.removeItem("token"); setUser(null); }}
+  style={{ position: "absolute", right: 20, top: 20 }}
+>
+  Logout
+</button>
+
           <h2>Weekly Summary</h2>
           <div style={{ display: 'flex', gap: '2rem' }}>
             <div style={{ flex: 1 }}>

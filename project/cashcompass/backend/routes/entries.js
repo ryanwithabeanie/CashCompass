@@ -1,17 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const Entry = require('../models/Entry');
+const auth = require("../middleware/auth");  // ✅ Middleware for JWT check
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 require('dotenv').config();
 
 
-
-
-// Create new entry
-router.post('/add', async (req, res) => {
+// ✅ Create new entry (protected)
+router.post('/add', auth, async (req, res) => {
   try {
-    const newEntry = new Entry(req.body);
+    const newEntry = new Entry({
+      ...req.body,
+      userId: req.user.id   // ✅ Link entry with logged-in user
+    });
     const savedEntry = await newEntry.save();
     res.status(201).json({ message: "Entry saved successfully", entry: savedEntry });
   } catch (err) {
@@ -19,10 +21,11 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// Get all entries
-router.get('/', async (req, res) => {
+
+// ✅ Get all entries for logged-in user (protected)
+router.get('/', auth, async (req, res) => {
   try {
-    const entries = await Entry.find().sort({ date: -1 });
+    const entries = await Entry.find({ userId: req.user.id }).sort({ date: -1 });
     res.json(entries);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -30,18 +33,17 @@ router.get('/', async (req, res) => {
 });
 
 
-// Test route for verifying backend
+// Test route for verifying backend (unprotected)
 router.get('/test', (req, res) => {
   res.json({ message: "Test route is working!" });
 });
 
 
-
-// Delete an entry by ID
-router.delete('/:id', async (req, res) => {
+// ✅ Delete an entry by ID (protected)
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const deleted = await Entry.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Entry not found' });
+    const deleted = await Entry.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    if (!deleted) return res.status(404).json({ error: 'Entry not found or not yours' });
     res.json({ message: 'Entry deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -49,12 +51,15 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-
-// Update an entry by ID
-router.put('/:id', async (req, res) => {
+// ✅ Update an entry by ID (protected)
+router.put('/:id', auth, async (req, res) => {
   try {
-    const updated = await Entry.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ error: 'Entry not found' });
+    const updated = await Entry.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      req.body,
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'Entry not found or not yours' });
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,28 +67,25 @@ router.put('/:id', async (req, res) => {
 });
 
 
-//generate a summary of the last two weeks
-router.get('/summary', async (req, res) => {
+// ✅ Generate a summary of the last two weeks (protected)
+router.get('/summary', auth, async (req, res) => {
   try {
-    const entries = await Entry.find();
+    const entries = await Entry.find({ userId: req.user.id });
 
     const now = new Date();
 
-    
-
-    // Get start of this week (Sunday)
+    // Start of this week (Sunday)
     const startOfThisWeek = new Date(now);
     startOfThisWeek.setDate(now.getDate() - now.getDay());
     startOfThisWeek.setHours(0, 0, 0, 0);
-      
-    // Get start of last week (Sunday of previous week)
+
+    // Start of last week (Sunday of previous week)
     const startOfLastWeek = new Date(startOfThisWeek);
     startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
-      
-    // Get end of last week (Saturday before this week)
-    const endOfLastWeek = new Date(startOfThisWeek);
-    endOfLastWeek.setMilliseconds(-1); // 1ms before this week's start
 
+    // End of last week (Saturday before this week)
+    const endOfLastWeek = new Date(startOfThisWeek);
+    endOfLastWeek.setMilliseconds(-1);
 
     let thisWeek = { income: 0, expense: 0 };
     let lastWeek = { income: 0, expense: 0 };
@@ -105,7 +107,7 @@ router.get('/summary', async (req, res) => {
       This week: Income $${thisWeek.income}, Expense $${thisWeek.expense}
       Last week: Income $${lastWeek.income}, Expense $${lastWeek.expense}
       Write a short, human-friendly summary comparing both weeks, and provide a suggestion for improvement.
-      `;
+    `;
 
     //  OpenRouter DeepSeek API Request
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -127,12 +129,6 @@ router.get('/summary', async (req, res) => {
 
     const data = await response.json();
     const aiComment = data.choices[0]?.message?.content || "No AI insight available.";
-
-    console.log('AI Response:', data);
-    console.log('AI Comment:', aiComment);
-
-
-
 
     res.json({
       currentWeek: {
@@ -156,4 +152,3 @@ router.get('/summary', async (req, res) => {
 
 
 module.exports = router;
-

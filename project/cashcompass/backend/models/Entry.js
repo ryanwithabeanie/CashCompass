@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const EntrySchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
   type: {
     type: String,
     enum: ['income', 'expense'],
@@ -23,6 +24,9 @@ const EntrySchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+
+
 
 module.exports = mongoose.model('Entry', EntrySchema);
 
