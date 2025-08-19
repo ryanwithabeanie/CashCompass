@@ -1,18 +1,3 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/entries';
-
-export const fetchEntries = async () => {
-  try {
-    const response = await axios.get(API_URL);
-    return response.data;
-  } catch (err) {
-    console.error("Failed to fetch entries", err);
-    throw err;
-  }
-};
-
-
 const API = "http://localhost:5000/api/entries";
 
 function authHeaders() {
@@ -20,12 +5,14 @@ function authHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+// ✅ Get all entries (protected)
 export async function fetchEntries() {
   const res = await fetch(API, { headers: { ...authHeaders() } });
   if (!res.ok) throw new Error("Failed to fetch entries");
   return res.json();
 }
 
+// ✅ Add new entry (protected)
 export async function addEntry(data) {
   const res = await fetch(`${API}/add`, {
     method: "POST",
@@ -36,6 +23,7 @@ export async function addEntry(data) {
   return res.json();
 }
 
+// ✅ Update entry (protected)
 export async function updateEntry(id, data) {
   const res = await fetch(`${API}/${id}`, {
     method: "PUT",
@@ -46,6 +34,7 @@ export async function updateEntry(id, data) {
   return res.json();
 }
 
+// ✅ Delete entry (protected)
 export async function deleteEntry(id) {
   const res = await fetch(`${API}/${id}`, {
     method: "DELETE",
