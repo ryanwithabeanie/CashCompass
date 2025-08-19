@@ -3,6 +3,7 @@ const API = "http://localhost:5000/api/entries";
 // ✅ Always return proper headers
 function authHeaders(contentType = false) {
   const token = localStorage.getItem("token");
+  console.log("Sending token:", token);
   const headers = {};
 
   if (contentType) {
