@@ -1,13 +1,26 @@
 const API = "http://localhost:5000/api/entries";
 
-function authHeaders() {
+// ✅ Always return proper headers
+function authHeaders(contentType = false) {
   const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const headers = {};
+
+  if (contentType) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return headers;
 }
 
 // ✅ Get all entries (protected)
 export async function fetchEntries() {
-  const res = await fetch(API, { headers: { ...authHeaders() } });
+  const res = await fetch(API, {
+    method: "GET",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch entries");
   return res.json();
 }
@@ -16,10 +29,13 @@ export async function fetchEntries() {
 export async function addEntry(data) {
   const res = await fetch(`${API}/add`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(true),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to add entry");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Failed to add entry");
+  }
   return res.json();
 }
 
@@ -27,10 +43,13 @@ export async function addEntry(data) {
 export async function updateEntry(id, data) {
   const res = await fetch(`${API}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(true),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update entry");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Failed to update entry");
+  }
   return res.json();
 }
 
@@ -38,8 +57,11 @@ export async function updateEntry(id, data) {
 export async function deleteEntry(id) {
   const res = await fetch(`${API}/${id}`, {
     method: "DELETE",
-    headers: { ...authHeaders() },
+    headers: authHeaders(),
   });
-  if (!res.ok) throw new Error("Failed to delete entry");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Failed to delete entry");
+  }
   return res.json();
 }

@@ -30,17 +30,21 @@ export default function Login({ onLoggedIn }) {
       if (!res.ok) return setMsg(data.error || "Request failed");
 
       if (mode === "register") {
-        setMsg("Registered. You can now log in.");
+        setMsg("✅ Registered successfully! You can now log in.");
         setMode("login");
+        setPassword("");
         return;
       }
 
-      // login success
+      // ✅ login success: save token + user in localStorage
       localStorage.setItem("token", data.token);
-      onLoggedIn(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      setMsg("");
+      onLoggedIn(data.user); // inform parent
     } catch (err) {
       console.error("Auth error:", err);
-      setMsg("Server error, please try again.");
+      setMsg("⚠️ Server error, please try again.");
     }
   }
 
@@ -90,7 +94,7 @@ export default function Login({ onLoggedIn }) {
         </button>
       </form>
 
-      {msg && <p style={{ color: "#b00", marginTop: 12 }}>{msg}</p>}
+      {msg && <p style={{ color: msg.startsWith("✅") ? "green" : "#b00", marginTop: 12 }}>{msg}</p>}
 
       <p style={{ marginTop: 12 }}>
         {mode === "login" ? "No account?" : "Already have an account?"}{" "}
