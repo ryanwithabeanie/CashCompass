@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
 const EntrySchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
+  user: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "User", 
+    required: true   // ✅ must be linked to a user
+  },
   type: {
     type: String,
     enum: ['income', 'expense'],
@@ -15,7 +19,7 @@ const EntrySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  note: {
+  description: {        // ✅ match routes (was "note")
     type: String,
     default: ''
   },
@@ -25,8 +29,4 @@ const EntrySchema = new mongoose.Schema({
   }
 });
 
-
-
-
 module.exports = mongoose.model('Entry', EntrySchema);
-
