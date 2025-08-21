@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Entry = require('../models/Entry');
-const auth = require("../middleware/auth");  // ✅ JWT middlewar
+const auth = require("../middleware/auth");  // ✅ JWT middleware
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 require('dotenv').config();
-
 
 // ✅ Create new entry (protected)
 router.post('/add', auth, async (req, res) => {
@@ -20,12 +19,13 @@ router.post('/add', auth, async (req, res) => {
       type, // income | expense
       description,
       date: date || new Date(),
-      userId: req.user.id   // ✅ link entry to user
+      user: req.user.id   // ✅ consistent with model (user not userId)
     });
 
     const savedEntry = await newEntry.save();
     res.status(201).json({ message: "Entry saved successfully", entry: savedEntry });
   } catch (err) {
+    console.error("Add entry error:", err.message);
     res.status(400).json({ error: err.message });
   }
 });
@@ -33,9 +33,10 @@ router.post('/add', auth, async (req, res) => {
 // ✅ Get all entries for logged-in user (protected)
 router.get('/', auth, async (req, res) => {
   try {
-    const entries = await Entry.find({ userId: req.user.id }).sort({ date: -1 });
+    const entries = await Entry.find({ user: req.user.id }).sort({ date: -1 }); // ✅ user not userId
     res.json(entries);
   } catch (err) {
+    console.error("Get entries error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -48,10 +49,11 @@ router.get('/test', (req, res) => {
 // ✅ Delete an entry (protected)
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const deleted = await Entry.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    const deleted = await Entry.findOneAndDelete({ _id: req.params.id, user: req.user.id });
     if (!deleted) return res.status(404).json({ error: 'Entry not found or not yours' });
     res.json({ message: 'Entry deleted successfully' });
   } catch (err) {
+    console.error("Delete entry error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -60,13 +62,14 @@ router.delete('/:id', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
   try {
     const updated = await Entry.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user.id },
+      { _id: req.params.id, user: req.user.id },
       req.body,
       { new: true }
     );
     if (!updated) return res.status(404).json({ error: 'Entry not found or not yours' });
     res.json(updated);
   } catch (err) {
+    console.error("Update entry error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -74,7 +77,7 @@ router.put('/:id', auth, async (req, res) => {
 // ✅ Weekly summary with AI (protected)
 router.get('/summary', auth, async (req, res) => {
   try {
-    const entries = await Entry.find({ userId: req.user.id });
+    const entries = await Entry.find({ user: req.user.id });
 
     const now = new Date();
 
@@ -95,11 +98,11 @@ router.get('/summary', auth, async (req, res) => {
     let lastWeek = { income: 0, expense: 0 };
 
     entries.forEach(entry => {
-      const date = new Date(entry.date);
-      if (date >= startOfThisWeek) {
+      const entryDate = new Date(entry.date);
+      if (entryDate >= startOfThisWeek) {
         if (entry.type === 'income') thisWeek.income += entry.amount;
         else if (entry.type === 'expense') thisWeek.expense += entry.amount;
-      } else if (date >= startOfLastWeek && date <= endOfLastWeek) {
+      } else if (entryDate >= startOfLastWeek && entryDate <= endOfLastWeek) {
         if (entry.type === 'income') lastWeek.income += entry.amount;
         else if (entry.type === 'expense') lastWeek.expense += entry.amount;
       }
