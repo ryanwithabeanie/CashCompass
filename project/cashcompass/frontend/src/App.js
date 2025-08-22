@@ -445,7 +445,7 @@ const lineData = summary ? {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              style={{ marginLeft: '0.5rem' }}
+              style={{ marginLeft: '0.9rem' }}
             >
               <option value="all">All</option>
               <option value="income">Income</option>
@@ -455,14 +455,14 @@ const lineData = summary ? {
 
           <input
             type="text"
-            placeholder="Search entries..."
+            placeholder="🔍︎ Search entries..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{
               width: "100%",
               padding: "0.5rem",
               marginBottom: "1rem",
-              borderRadius: "6px",
+              borderRadius: "8px",
               border: "1px solid #ccc"
             }}
           />
