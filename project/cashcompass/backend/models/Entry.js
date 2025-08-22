@@ -28,34 +28,13 @@ const fetchEntries = async () => {
 
 
 
-
 const EntrySchema = new mongoose.Schema({
-  user: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "User", 
-    required: true   // ✅ must be linked to a user
-  },
-  type: {
-    type: String,
-    enum: ['income', 'expense'],
-    required: true
-  },
-  category: {
-    type: String,
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  description: {        // ✅ match routes (was "note")
-    type: String,
-    default: ''
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  }
+  type: { type: String, required: true },
+  category: { type: String, required: true },
+  amount: { type: Number, required: true },
+  note: String,
+  date: { type: Date, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true } // <-- add this
 });
 
 module.exports = mongoose.model('Entry', EntrySchema);

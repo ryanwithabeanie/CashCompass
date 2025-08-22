@@ -18,6 +18,14 @@ const summaryRoute = require('./routes/summary');
 app.use('/api/summary', summaryRoute);
 
 
+const friendsRoutes = require('./routes/friends');
+app.use('/api/friends', friendsRoutes);
+
+
+const chatRoutes = require('./routes/chat');
+app.use('/api/chat', chatRoutes);
+
+
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -28,6 +36,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 app.get('/', (req, res) => {
   res.send('CashCompass Backend Running!');
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

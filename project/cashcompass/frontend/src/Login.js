@@ -51,68 +51,122 @@ export default function Login({ onLoggedIn }) {
   return (
     <div
       style={{
-        maxWidth: 380,
-        margin: "3rem auto",
-        padding: "1.5rem",
-        background: "#fff",
-        border: "1px solid #ddd",
-        borderRadius: 12,
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #3498db 0%, #6dd5fa 100%)",
       }}
     >
-      <h2 style={{ marginBottom: "1rem" }}>
-        {mode === "login" ? "Login" : "Register"}
-      </h2>
-      <form onSubmit={submit}>
-        {mode === "register" && (
+      <div
+        style={{
+          maxWidth: 380,
+          width: "100%",
+          margin: "3rem auto",
+          padding: "2rem",
+          background: "#fff",
+          border: "1px solid #ddd",
+          borderRadius: 16,
+          boxShadow: "0 8px 32px rgba(52,152,219,0.15)",
+        }}
+      >
+        <h2 style={{ marginBottom: "1rem", color: "#3498db" }}>
+          {mode === "login" ? "Login" : "Register"}
+        </h2>
+        <form onSubmit={submit}>
+          {mode === "register" && (
+            <input
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={{
+                width: "100%",
+                padding: 10,
+                marginBottom: 10,
+                borderRadius: 8,
+                border: "1px solid #ccc",
+              }}
+              required
+            />
+          )}
           <input
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            style={{ width: "100%", padding: 10, marginBottom: 10 }}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              width: "100%",
+              padding: 10,
+              marginBottom: 10,
+              borderRadius: 8,
+              border: "1px solid #ccc",
+            }}
             required
           />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              width: "100%",
+              padding: 10,
+              marginBottom: 10,
+              borderRadius: 8,
+              border: "1px solid #ccc",
+            }}
+            required
+          />
+
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: 12,
+              background: "#3498db",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontWeight: "bold",
+              fontSize: "1rem",
+              boxShadow: "0 2px 8px rgba(52,152,219,0.15)",
+              cursor: "pointer",
+            }}
+          >
+            {mode === "login" ? "Login" : "Register"}
+          </button>
+        </form>
+
+        {msg && (
+          <p
+            style={{
+              color: msg.startsWith("✅") ? "green" : "#b00",
+              marginTop: 12,
+            }}
+          >
+            {msg}
+          </p>
         )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
-          required
-        />
 
-        <button type="submit" style={{ width: "100%", padding: 12 }}>
-          {mode === "login" ? "Login" : "Register"}
-        </button>
-      </form>
-
-      {msg && <p style={{ color: msg.startsWith("✅") ? "green" : "#b00", marginTop: 12 }}>{msg}</p>}
-
-      <p style={{ marginTop: 12 }}>
-        {mode === "login" ? "No account?" : "Already have an account?"}{" "}
-        <button
-          onClick={() =>
-            setMode(mode === "login" ? "register" : "login")
-          }
-          style={{
-            background: "none",
-            border: "none",
-            color: "#06c",
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          {mode === "login" ? "Register" : "Login"}
-        </button>
-      </p>
+        <p style={{ marginTop: 12 }}>
+          {mode === "login" ? "No account?" : "Already have an account?"}{" "}
+          <button
+            onClick={() =>
+              setMode(mode === "login" ? "register" : "login")
+            }
+            style={{
+              background: "none",
+              border: "none",
+              color: "#3498db",
+              cursor: "pointer",
+              padding: 0,
+              fontWeight: "bold",
+            }}
+          >
+            {mode === "login" ? "Register" : "Login"}
+          </button>
+        </p>
+      </div>
     </div>
   );
 }
