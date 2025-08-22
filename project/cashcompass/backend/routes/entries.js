@@ -77,20 +77,16 @@ router.put('/:id', auth, async (req, res) => {
 // ✅ Weekly summary with AI (protected)
 router.get('/summary', auth, async (req, res) => {
   try {
-    const entries = await Entry.find({ user: req.user.id });
+    const entries = await Entry.find({ userId: req.user.id });
 
     const now = new Date();
-
-    // Start of this week (Sunday)
     const startOfThisWeek = new Date(now);
     startOfThisWeek.setDate(now.getDate() - now.getDay());
     startOfThisWeek.setHours(0, 0, 0, 0);
 
-    // Start of last week (Sunday before this week)
     const startOfLastWeek = new Date(startOfThisWeek);
     startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
 
-    // End of last week (Saturday)
     const endOfLastWeek = new Date(startOfThisWeek);
     endOfLastWeek.setMilliseconds(-1);
 
@@ -98,11 +94,11 @@ router.get('/summary', auth, async (req, res) => {
     let lastWeek = { income: 0, expense: 0 };
 
     entries.forEach(entry => {
-      const entryDate = new Date(entry.date);
-      if (entryDate >= startOfThisWeek) {
+      const date = new Date(entry.date);
+      if (date >= startOfThisWeek) {
         if (entry.type === 'income') thisWeek.income += entry.amount;
         else if (entry.type === 'expense') thisWeek.expense += entry.amount;
-      } else if (entryDate >= startOfLastWeek && entryDate <= endOfLastWeek) {
+      } else if (date >= startOfLastWeek && date <= endOfLastWeek) {
         if (entry.type === 'income') lastWeek.income += entry.amount;
         else if (entry.type === 'expense') lastWeek.expense += entry.amount;
       }
@@ -130,6 +126,22 @@ router.get('/summary', auth, async (req, res) => {
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return res.json({
+          currentWeek: {
+            income: thisWeek.income,
+            expense: thisWeek.expense,
+            savings: thisWeek.income - thisWeek.expense
+          },
+          previousWeek: {
+            income: lastWeek.income,
+            expense: lastWeek.expense,
+            savings: lastWeek.income - lastWeek.expense
+          },
+          balance,
+          aiComment: "AI summary unavailable (daily free limit reached). Please try again tomorrow."
+        });
+      }
       const errorText = await response.text();
       throw new Error(`AI request failed: ${response.status} - ${errorText}`);
     }
@@ -151,10 +163,12 @@ router.get('/summary', auth, async (req, res) => {
       balance,
       aiComment
     });
+
   } catch (err) {
     console.error("Summary error:", err.message);
     res.status(500).json({ error: "Failed to generate AI summary" });
   }
 });
+
 
 module.exports = router;
