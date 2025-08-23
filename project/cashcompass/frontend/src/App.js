@@ -88,19 +88,22 @@ function App() {
     }
   };
 
-  const reloadData = async () => {
-    setEntriesLoading(true);
-    setSummaryLoading(true);
-    setEntriesError('');
-    setSummaryError('');
-    try {
-      const entriesData = await fetchEntries();
-      setEntries(entriesData);
-    } catch (err) {
-      setEntriesError('Failed to load entries.');
-    } finally {
-      setEntriesLoading(false);
-    }
+  // Only call fetchSummary() after login or entry change, not on every reload
+const reloadData = async () => {
+  setEntriesLoading(true);
+  setSummaryLoading(true);
+  setEntriesError('');
+  setSummaryError('');
+  try {
+    const entriesData = await fetchEntries();
+    setEntries(entriesData);
+  } catch (err) {
+    setEntriesError('Failed to load entries.');
+  } finally {
+    setEntriesLoading(false);
+  }
+  // Only fetch summary if entries changed or user logged in
+  if (localStorage.getItem("token")) {
     try {
       const summaryData = await fetchSummary();
       setSummary(summaryData);
@@ -109,7 +112,8 @@ function App() {
     } finally {
       setSummaryLoading(false);
     }
-  };
+  }
+};
 
   useEffect(() => {
     const loadEntries = async () => {
