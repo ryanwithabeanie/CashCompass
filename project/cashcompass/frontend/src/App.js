@@ -8,10 +8,12 @@ import { Pie, Line } from 'react-chartjs-2';
 import { Chart, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
 import FriendRequestsCard from './FriendRequestsCard';
 import ChatCard from './ChatCard';
+import BudgetCard from './BudgetCard';
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 function App() {
+  // -------------------- State --------------------
   const [entries, setEntries] = useState([]);
   const [filter, setFilter] = useState('all');
   const [entriesLoading, setEntriesLoading] = useState(true);
@@ -27,8 +29,91 @@ function App() {
     date: ''
   });
   const [summary, setSummary] = useState(null);
-  const [search, setSearch] = useState(""); // Add at top with other useState
+  const [search, setSearch] = useState('');
   const [friends, setFriends] = useState([]);
+  const [user, setUser] = useState(null);
+
+  // -------------------- Effects (always at top level) --------------------
+  // Initialize auth state from localStorage
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUser(token ? {} : null);
+  }, []);
+
+  // Initial load (entries; summary only if logged in)
+  useEffect(() => {
+    reloadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When user logs in/out, refresh data + friends
+  useEffect(() => {
+    // Reload entries+summary whenever auth state changes
+    reloadData();
+
+    // Fetch friends only when logged in
+    if (!user) {
+      setFriends([]);
+      return;
+    }
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:5000/api/chat/friends", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setFriends(data.friends || []))
+      .catch(() => setFriends([]));
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cache last successful summary for "daily limit" fallback
+  useEffect(() => {
+    if (summary && !summaryError) {
+      localStorage.setItem("lastSummary", JSON.stringify(summary));
+    }
+  }, [summary, summaryError]);
+
+  // -------------------- Functions --------------------
+  const reloadData = async () => {
+    setEntriesLoading(true);
+    setEntriesError('');
+
+    const hasToken = !!localStorage.getItem("token");
+    setSummaryLoading(hasToken);      // show spinner only if user is logged in
+    setSummaryError('');
+    if (!hasToken) {
+      setSummary(null);               // clear summary if logged out
+    }
+
+    try {
+      const entriesData = await fetchEntries();
+      setEntries(Array.isArray(entriesData) ? entriesData : []);
+    } catch (err) {
+      setEntriesError('Failed to load entries.');
+    } finally {
+      setEntriesLoading(false);
+    }
+
+    if (hasToken) {
+      try {
+        const summaryData = await fetchSummary();
+        setSummary(summaryData || null);
+      } catch (err) {
+        setSummaryError('Failed to Generate Summary. Please try again.');
+      } finally {
+        setSummaryLoading(false);
+      }
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditingEntry(null);
+    setEditForm({ type: '', category: '', amount: '', note: '', date: '' });
+  };
+
+  const startEditing = (entry) => {
+    setEditingEntry(entry._id);
+    setEditForm({ ...entry, date: entry.date?.split('T')[0] || '' }); // Trim timestamp
+  };
 
   const deleteEntry = async (id) => {
     if (!window.confirm("Are you sure you want to delete this entry?")) return;
@@ -50,16 +135,6 @@ function App() {
     }
   };
 
-  const startEditing = (entry) => {
-    setEditingEntry(entry._id);
-    setEditForm({ ...entry, date: entry.date.split('T')[0] }); // Trim timestamp
-  };
-
-  const cancelEditing = () => {
-    setEditingEntry(null);
-    setEditForm({ type: '', category: '', amount: '', note: '', date: '' });
-  };
-
   const handleEditChange = (e) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
@@ -79,7 +154,7 @@ function App() {
 
       if (res.ok) {
         cancelEditing();
-        await reloadData();
+        reloadData();
       } else {
         console.error("Failed to update entry");
       }
@@ -88,69 +163,24 @@ function App() {
     }
   };
 
-  // Only call fetchSummary() after login or entry change, not on every reload
-const reloadData = async () => {
-  setEntriesLoading(true);
-  setSummaryLoading(true);
-  setEntriesError('');
-  setSummaryError('');
-  try {
-    const entriesData = await fetchEntries();
-    setEntries(entriesData);
-  } catch (err) {
-    setEntriesError('Failed to load entries.');
-  } finally {
-    setEntriesLoading(false);
-  }
-  // Only fetch summary if entries changed or user logged in
-  if (localStorage.getItem("token")) {
-    try {
-      const summaryData = await fetchSummary();
-      setSummary(summaryData);
-    } catch (err) {
-      setSummaryError('Failed to Generate Summary. Please try again.');
-    } finally {
-      setSummaryLoading(false);
+  // -------------------- Derived/UI data --------------------
+  const getSummaryToShow = () => {
+    // Only fallback if summaryError is set AND summary.aiComment includes 'daily limit'
+    if (
+      summaryError &&
+      summaryError.toLowerCase().includes("daily limit") &&
+      summary && summary.aiComment && summary.aiComment.toLowerCase().includes("daily limit")
+    ) {
+      const cached = localStorage.getItem("lastSummary");
+      if (cached) return JSON.parse(cached);
+      return null;
     }
-  }
-};
+    return summary;
+  };
 
-  useEffect(() => {
-    const loadEntries = async () => {
-      try {
-        setEntriesLoading(true);
-        setEntriesError('');
-        const data = await fetchEntries();
-        setEntries(data);
-      } catch (err) {
-        console.error("Entries error:", err);
-        setEntriesError('Failed to load entries.');
-      } finally {
-        setEntriesLoading(false);
-      }
-    };
-    loadEntries();
-    // REMOVE loadSummary(); here!
-  }, []);
-const [user, setUser] = useState(null);
+  const summaryToShow = getSummaryToShow();
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) setUser({}); // optionally fetch /me later
-}, []);
-
-useEffect(() => {
-  if (!user) return;
-  const token = localStorage.getItem("token");
-  fetch("http://localhost:5000/api/chat/friends", {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-    .then(res => res.json())
-    .then(data => setFriends(data.friends || []));
-}, [user]);
-
-  // Add these two lines to define pieData and lineData before using them
-  const pieData = summary ? {
+  const pieData = summary?.currentWeek ? {
     labels: ['Income', 'Expense', 'Savings'],
     datasets: [{
       data: [
@@ -162,7 +192,7 @@ useEffect(() => {
     }]
   } : null;
 
-  const lineData = summary ? {
+  const lineData = (summary?.currentWeek && summary?.previousWeek) ? {
     labels: ['Last Week', 'This Week'],
     datasets: [
       {
@@ -188,36 +218,15 @@ useEffect(() => {
 
   console.log("Summary in frontend:", summary);
 
-  // Store last successful summary in localStorage cache
-  useEffect(() => {
-    if (summary && !summaryError) {
-      localStorage.setItem("lastSummary", JSON.stringify(summary));
-    }
-  }, [summary, summaryError]);
-
-  // Show cached summary if daily limit reached
-  const getSummaryToShow = () => {
-    if (summaryError && summaryError.toLowerCase().includes("daily limit")) {
-      const cached = localStorage.getItem("lastSummary");
-      if (cached) return JSON.parse(cached);
-      return null;
-    }
-    return summary;
-  };
-
-  const summaryToShow = getSummaryToShow();
-
+  // -------------------- Early return for login (AFTER hooks) --------------------
   if (!user) {
-    return (
-      <Login
-        onLoggedIn={(userObj) => {
-          setUser(userObj);
-          reloadData();
-        }}
-      />
-    );
+    // Brute force: always reload page after login
+    return <Login onLoggedIn={() => {
+      window.location.reload();
+    }} />;
   }
 
+  // -------------------- JSX --------------------
   return (
     <div
       style={{
@@ -227,7 +236,7 @@ useEffect(() => {
         minHeight: '100vh'
       }}
     >
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>💰 CashCompass 🧭</h1>
+  <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>💰 CashCompass 🧭</h1>
 
       {/* Independent Logout Card */}
       <div style={{
@@ -308,15 +317,15 @@ useEffect(() => {
           <div style={{ display: 'flex', gap: '2rem' }}>
             <div style={{ flex: 1 }}>
               <h3>This Week</h3>
-              <p><strong>Income:</strong> ${summaryToShow.currentWeek.income}</p>
-              <p><strong>Expense:</strong> ${summaryToShow.currentWeek.expense}</p>
-              <p><strong>Savings:</strong> ${summaryToShow.currentWeek.savings}</p>
+              <p><strong>Income:</strong> ${summaryToShow.currentWeek?.income ?? 0}</p>
+              <p><strong>Expense:</strong> ${summaryToShow.currentWeek?.expense ?? 0}</p>
+              <p><strong>Savings:</strong> ${summaryToShow.currentWeek?.savings ?? 0}</p>
             </div>
             <div style={{ flex: 1 }}>
               <h3>Last Week</h3>
-              <p><strong>Income:</strong> ${summaryToShow.previousWeek.income}</p>
-              <p><strong>Expense:</strong> ${summaryToShow.previousWeek.expense}</p>
-              <p><strong>Savings:</strong> ${summaryToShow.previousWeek.savings}</p>
+              <p><strong>Income:</strong> ${summaryToShow.previousWeek?.income ?? 0}</p>
+              <p><strong>Expense:</strong> ${summaryToShow.previousWeek?.expense ?? 0}</p>
+              <p><strong>Savings:</strong> ${summaryToShow.previousWeek?.savings ?? 0}</p>
             </div>
           </div>
           {/* AI Insight */}
@@ -333,7 +342,7 @@ useEffect(() => {
                 lineHeight: '1.6',
               }}
               dangerouslySetInnerHTML={{
-                __html: marked.parse(summaryToShow.aiComment),
+                __html: marked(summaryToShow.aiComment), // safer across marked versions
               }}
             />
           )}
@@ -411,6 +420,9 @@ useEffect(() => {
         </div>
       )}
 
+      <div style={{ width: '100%', marginBottom: '2rem' }}>
+        <BudgetCard user={user} />
+      </div>
       <div
         style={{
           display: 'flex',
@@ -496,8 +508,8 @@ useEffect(() => {
               .filter(entry =>
                 (filter === 'all' || entry.type === filter) &&
                 (
-                  entry.category.toLowerCase().includes(search.toLowerCase()) ||
-                  entry.note.toLowerCase().includes(search.toLowerCase())
+                  (entry.category || '').toLowerCase().includes(search.toLowerCase()) ||
+                  (entry.note || '').toLowerCase().includes(search.toLowerCase())
                 )
               )
               .map((entry) => (
@@ -563,7 +575,7 @@ useEffect(() => {
                       </button>
                     </form>
                   ) : (
-                    <>
+                    <div style={{ display: 'flex', width: '100%' }}>
                       <div style={{ flex: 1 }}>
                         <strong>{entry.category}</strong>: ${entry.amount} ({entry.type})
                         <br />
@@ -596,7 +608,7 @@ useEffect(() => {
                           Delete
                         </button>
                       </div>
-                    </>
+                    </div>
                   )}
                 </li>
               ))}

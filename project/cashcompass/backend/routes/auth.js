@@ -22,7 +22,10 @@ router.post("/register", async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ error: "Email already registered" });
 
-    const user = new User({ username, email, password });
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({ username, email, password: hashedPassword });
     await user.save();
 
     const token = generateToken(user);
@@ -40,21 +43,37 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      console.error('Missing email or password');
+      return res.status(400).json({ error: 'Missing email or password' });
+    }
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "User not found" });
+    if (!user) {
+      console.error('User not found for email:', email);
+      return res.status(400).json({ error: "User not found" });
+    }
 
     const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.status(400).json({ error: "Invalid credentials" });
+    if (!ok) {
+      console.error('Password mismatch for user:', email);
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
 
-    const token = generateToken(user);
+    let token;
+    try {
+      token = generateToken(user);
+    } catch (jwtErr) {
+      console.error('JWT error:', jwtErr);
+      return res.status(500).json({ error: 'JWT error: ' + jwtErr.message });
+    }
 
     return res.json({
       token,
       user: { id: user._id, username: user.username, email: user.email }
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Server error" });
+    console.error('Login route error:', err);
+    return res.status(500).json({ error: "Server error: " + err.message });
   }
 });
 module.exports = router;

@@ -25,6 +25,9 @@ app.use('/api/friends', friendsRoutes);
 const chatRoutes = require('./routes/chat');
 app.use('/api/chat', chatRoutes);
 
+const budgetRoutes = require('./routes/budget');
+app.use('/api/budget', budgetRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
