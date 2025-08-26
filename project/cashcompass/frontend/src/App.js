@@ -129,22 +129,8 @@ const reloadData = async () => {
         setEntriesLoading(false);
       }
     };
-    const loadSummary = async () => {
-      try {
-        setSummaryLoading(true);
-        setSummaryError('');
-        const data = await fetchSummary();  
-        setSummary(data);
-      } catch (err) {
-        console.error("Summary error:", err);
-        setSummaryError('Failed to Generate Summary. Please try again.');
-      } finally {
-        setSummaryLoading(false);
-      }
-    };
-
     loadEntries();
-    loadSummary();
+    // REMOVE loadSummary(); here!
   }, []);
 const [user, setUser] = useState(null);
 
@@ -163,58 +149,74 @@ useEffect(() => {
     .then(data => setFriends(data.friends || []));
 }, [user]);
 
+  // Add these two lines to define pieData and lineData before using them
+  const pieData = summary ? {
+    labels: ['Income', 'Expense', 'Savings'],
+    datasets: [{
+      data: [
+        summary.currentWeek.income,
+        summary.currentWeek.expense,
+        summary.currentWeek.savings
+      ],
+      backgroundColor: ['#3498db', '#e74c3c', '#2ecc71']
+    }]
+  } : null;
 
+  const lineData = summary ? {
+    labels: ['Last Week', 'This Week'],
+    datasets: [
+      {
+        label: 'Income',
+        data: [summary.previousWeek.income, summary.currentWeek.income],
+        borderColor: '#3498db',
+        fill: false
+      },
+      {
+        label: 'Expense',
+        data: [summary.previousWeek.expense, summary.currentWeek.expense],
+        borderColor: '#e74c3c',
+        fill: false
+      },
+      {
+        label: 'Savings',
+        data: [summary.previousWeek.savings, summary.currentWeek.savings],
+        borderColor: '#2ecc71',
+        fill: false
+      }
+    ]
+  } : null;
 
   console.log("Summary in frontend:", summary);
+
+  // Store last successful summary in localStorage cache
+  useEffect(() => {
+    if (summary && !summaryError) {
+      localStorage.setItem("lastSummary", JSON.stringify(summary));
+    }
+  }, [summary, summaryError]);
+
+  // Show cached summary if daily limit reached
+  const getSummaryToShow = () => {
+    if (summaryError && summaryError.toLowerCase().includes("daily limit")) {
+      const cached = localStorage.getItem("lastSummary");
+      if (cached) return JSON.parse(cached);
+      return null;
+    }
+    return summary;
+  };
+
+  const summaryToShow = getSummaryToShow();
 
   if (!user) {
     return (
       <Login
         onLoggedIn={(userObj) => {
           setUser(userObj);
-          reloadData(); // <-- refresh data after login
+          reloadData();
         }}
       />
     );
   }
-
-  // Pie chart data
-const pieData = summary ? {
-  labels: ['Income', 'Expense', 'Savings'],
-  datasets: [{
-    data: [
-      summary.currentWeek.income,
-      summary.currentWeek.expense,
-      summary.currentWeek.savings
-    ],
-    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71']
-  }]
-} : null;
-
-// Line chart data (example: last 2 weeks)
-const lineData = summary ? {
-  labels: ['Last Week', 'This Week'],
-  datasets: [
-    {
-      label: 'Income',
-      data: [summary.previousWeek.income, summary.currentWeek.income],
-      borderColor: '#3498db',
-      fill: false
-    },
-    {
-      label: 'Expense',
-      data: [summary.previousWeek.expense, summary.currentWeek.expense],
-      borderColor: '#e74c3c',
-      fill: false
-    },
-    {
-      label: 'Savings',
-      data: [summary.previousWeek.savings, summary.currentWeek.savings],
-      borderColor: '#2ecc71',
-      fill: false
-    }
-  ]
-} : null;
 
   return (
     <div
@@ -227,6 +229,35 @@ const lineData = summary ? {
     >
       <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>💰 CashCompass 🧭</h1>
 
+      {/* Independent Logout Card */}
+      <div style={{
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(52,152,219,0.08)',
+        padding: '1rem',
+        width: 'fit-content',
+        margin: '0 0 2rem auto'
+      }}>
+        <button
+          onClick={() => { localStorage.removeItem("token"); setUser(null); }}
+          style={{
+            backgroundColor: "#3498db",
+            color: "#fff",
+            border: "none",
+            padding: "0.7rem 1.5rem",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+            boxShadow: "0 2px 8px rgba(52,152,219,0.15)",
+            cursor: "pointer",
+            transition: "background 0.2s"
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
       {/* Summary Loading/Error/Content */}
       {summaryLoading ? (
         <div style={{
@@ -235,11 +266,12 @@ const lineData = summary ? {
           marginBottom: '2rem',
           borderRadius: '8px',
           border: '1px solid #ddd',
-          fontStyle: 'italic'
+          fontStyle: 'italic',
+          position: 'relative'
         }}>
           Generating Summary...
         </div>
-      ) : summaryError ? (
+      ) : summaryError && !summaryToShow ? (
         <div style={{
           backgroundColor: '#fff3f3',
           padding: '1rem',
@@ -247,11 +279,12 @@ const lineData = summary ? {
           borderRadius: '8px',
           border: '1px solid #ffcccc',
           color: '#cc0000',
-          fontStyle: 'italic'
+          fontStyle: 'italic',
+          position: 'relative'
         }}>
           {summaryError}
         </div>
-      ) : summary && (
+      ) : summaryToShow && (
         <div
           style={{
             backgroundColor: '#fff',
@@ -259,47 +292,35 @@ const lineData = summary ? {
             marginBottom: '2rem',
             borderRadius: '8px',
             border: '1px solid #ddd',
+            position: 'relative'
           }}
         >
-
-          <button
-            onClick={() => { localStorage.removeItem("token"); setUser(null); }}
-            style={{
-              position: "absolute",
-              right: 20,
-              top: 20,
-              backgroundColor: "#3498db",
-              color: "#fff",
-              border: "none",
-              padding: "0.7rem 1.5rem",
-              borderRadius: "8px",
+          {summaryError && summaryError.toLowerCase().includes("daily limit") && (
+            <div style={{
+              color: "#e74c3c",
               fontWeight: "bold",
-              fontSize: "1.1rem",
-              boxShadow: "0 2px 8px rgba(52,152,219,0.15)",
-              cursor: "pointer",
-              transition: "background 0.2s"
-            }}
-          >
-            Logout
-          </button>
-
+              marginBottom: "1rem"
+            }}>
+              Free daily limit reached. Showing last generated summary.
+            </div>
+          )}
           <h2>Weekly Summary</h2>
           <div style={{ display: 'flex', gap: '2rem' }}>
             <div style={{ flex: 1 }}>
               <h3>This Week</h3>
-              <p><strong>Income:</strong> ${summary.currentWeek.income}</p>
-              <p><strong>Expense:</strong> ${summary.currentWeek.expense}</p>
-              <p><strong>Savings:</strong> ${summary.currentWeek.savings}</p>
+              <p><strong>Income:</strong> ${summaryToShow.currentWeek.income}</p>
+              <p><strong>Expense:</strong> ${summaryToShow.currentWeek.expense}</p>
+              <p><strong>Savings:</strong> ${summaryToShow.currentWeek.savings}</p>
             </div>
             <div style={{ flex: 1 }}>
               <h3>Last Week</h3>
-              <p><strong>Income:</strong> ${summary.previousWeek.income}</p>
-              <p><strong>Expense:</strong> ${summary.previousWeek.expense}</p>
-              <p><strong>Savings:</strong> ${summary.previousWeek.savings}</p>
+              <p><strong>Income:</strong> ${summaryToShow.previousWeek.income}</p>
+              <p><strong>Expense:</strong> ${summaryToShow.previousWeek.expense}</p>
+              <p><strong>Savings:</strong> ${summaryToShow.previousWeek.savings}</p>
             </div>
           </div>
           {/* AI Insight */}
-          {summary.aiComment && (
+          {summaryToShow.aiComment && (
             <div
               style={{
                 marginTop: '1.5rem',
@@ -312,84 +333,83 @@ const lineData = summary ? {
                 lineHeight: '1.6',
               }}
               dangerouslySetInnerHTML={{
-                __html: marked.parse(summary.aiComment),
+                __html: marked.parse(summaryToShow.aiComment),
               }}
             />
           )}
-          {/* REMOVE PIE AND LINE CHARTS FROM HERE */}
         </div>
       )}
 
       {summary && (
-  <div style={{
-    display: 'flex',
-    gap: '2rem',
-    justifyContent: 'center',
-    marginBottom: '2rem',
-    flexWrap: 'wrap'
-  }}>
-    {/* Pie Chart Card */}
-    <div style={{
-      flex: '1 1 320px',
-      minWidth: 320,
-      maxWidth: 400,
-      backgroundColor: '#fff',
-      border: '1px solid #ddd',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-      padding: '1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }}>
-      <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Pie Chart</h3>
-      <div style={{ width: 300, height: 300 }}>
-        <Pie
-          data={pieData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'bottom' }
-            }
-          }}
-        />
-      </div>
-    </div>
-    {/* Line Chart Card */}
-    <div style={{
-      flex: '1 1 420px',
-      minWidth: 320,
-      maxWidth: 500,
-      backgroundColor: '#fff',
-      border: '1px solid #ddd',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-      padding: '1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }}>
-      <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Linear Graph</h3>
-      <div style={{ width: 400, height: 300 }}>
-        <Line
-          data={lineData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'top' },
-            },
-            scales: {
-              x: { title: { display: true, text: 'Week' } },
-              y: { title: { display: true, text: 'Amount ($)' }, beginAtZero: true }
-            }
-          }}
-        />
-      </div>
-    </div>
-  </div>
-)}
+        <div style={{
+          display: 'flex',
+          gap: '2rem',
+          justifyContent: 'center',
+          marginBottom: '2rem',
+          flexWrap: 'wrap'
+        }}>
+          {/* Pie Chart Card */}
+          <div style={{
+            flex: '1 1 320px',
+            minWidth: 320,
+            maxWidth: 400,
+            backgroundColor: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Pie Chart</h3>
+            <div style={{ width: 300, height: 300 }}>
+              <Pie
+                data={pieData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'bottom' }
+                  }
+                }}
+              />
+            </div>
+          </div>
+          {/* Line Chart Card */}
+          <div style={{
+            flex: '1 1 420px',
+            minWidth: 320,
+            maxWidth: 500,
+            backgroundColor: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Linear Graph</h3>
+            <div style={{ width: 400, height: 300 }}>
+              <Line
+                data={lineData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'top' },
+                  },
+                  scales: {
+                    x: { title: { display: true, text: 'Week' } },
+                    y: { title: { display: true, text: 'Amount ($)' }, beginAtZero: true }
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         style={{

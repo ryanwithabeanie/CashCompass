@@ -69,7 +69,7 @@ function EntriesList() {
 
   useEffect(() => {
     fetchEntries();
-    fetchSummary();
+    
   }, []);
 
   return (
