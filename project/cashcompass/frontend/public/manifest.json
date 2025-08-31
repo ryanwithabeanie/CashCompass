@@ -11,6 +11,9 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#6dd5fa",
-  "background_color": "#3498db"
+  "theme_color": "#3498db",
+  "background_color": "#3498db",
+  "categories": ["finance", "productivity"],
+  "prefer_related_applications": false,
+  "firefox_app_manifest_url": "/manifest.json"
 }
