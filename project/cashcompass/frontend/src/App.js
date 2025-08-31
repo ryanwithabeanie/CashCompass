@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AddEntryForm from './AddEntryForm';
 import { fetchEntries } from './services/entryService';
 import { fetchSummary } from './services/summaryService';
+import { validateToken, clearAuth } from './services/authService';
 import { marked } from 'marked';
 import Login from "./Login";
 import { Pie, Line } from 'react-chartjs-2';
@@ -13,14 +14,14 @@ import BudgetCard from './BudgetCard';
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 function App() {
-  // -------------------- State --------------------
   const [entries, setEntries] = useState([]);
   const [filter, setFilter] = useState('all');
-  const [entriesLoading, setEntriesLoading] = useState(true);
+  const [entriesLoading, setEntriesLoading] = useState(false);
   const [entriesError, setEntriesError] = useState('');
-  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState('');
   const [editingEntry, setEditingEntry] = useState(null);
+  const [authChecking, setAuthChecking] = useState(true);
   const [editForm, setEditForm] = useState({
     type: '',
     category: '',
@@ -32,58 +33,124 @@ function App() {
   const [search, setSearch] = useState('');
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   // -------------------- Effects (always at top level) --------------------
-  // Initialize auth state from localStorage
+  // Initialize auth state from localStorage and validate token
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setUser(token ? {} : null);
+    const checkAuth = async () => {
+      try {
+        setAuthChecking(true);
+        const token = localStorage.getItem("token");
+        
+        if (!token) {
+          clearAuth(); // Use the imported clearAuth
+          setUser(null);
+          return;
+        }
+
+        const isValid = await validateToken(); // Use the imported validateToken
+        if (!isValid) {
+          clearAuth();
+          setUser(null);
+        } else {
+          setUser({});
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        clearAuth();
+        setUser(null);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  // Initial load (entries; summary only if logged in)
+  // Load initial data and friends when user is validated
   useEffect(() => {
-    reloadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // When user logs in/out, refresh data + friends
-  useEffect(() => {
-    // Reload entries+summary whenever auth state changes
-    reloadData();
-
-    // Fetch friends only when logged in
     if (!user) {
       setFriends([]);
+      setEntries([]);
+      setSummary(null);
       return;
     }
-    const token = localStorage.getItem("token");
-    fetch("http://localhost:5000/api/chat/friends", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => setFriends(data.friends || []))
-      .catch(() => setFriends([]));
+
+    // Load data only once when user is first set
+    const loadInitialData = async () => {
+      const token = localStorage.getItem("token");
+      
+      // Load entries first
+      try {
+        const entriesData = await fetchEntries();
+        setEntries(Array.isArray(entriesData) ? entriesData : []);
+      } catch (err) {
+        setEntriesError('Failed to load entries.');
+      }
+
+      // Load friends
+      try {
+        const res = await fetch("http://localhost:5000/api/chat/friends", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setFriends(data.friends || []);
+      } catch {
+        setFriends([]);
+      }
+
+      // Try to load cached summary
+      const cachedSummary = localStorage.getItem("lastSummary");
+      if (cachedSummary) {
+        try {
+          setSummary(JSON.parse(cachedSummary));
+        } catch (e) {
+          console.error("Failed to parse cached summary");
+        }
+      }
+    };
+
+    loadInitialData();
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Cache last successful summary for "daily limit" fallback
-  useEffect(() => {
-    if (summary && !summaryError) {
-      localStorage.setItem("lastSummary", JSON.stringify(summary));
-    }
-  }, [summary, summaryError]);
-
   // -------------------- Functions --------------------
-  const reloadData = async () => {
+  const generateNewSummary = async () => {
+    setIsGeneratingSummary(true);
+    setSummaryLoading(true);
+    setSummaryError('');
+    
+    try {
+      const summaryData = await fetchSummary();
+      if (summaryData) {
+        setSummary(summaryData);
+        localStorage.setItem("lastSummary", JSON.stringify(summaryData));
+        localStorage.setItem("lastSummaryTime", Date.now().toString());
+      }
+    } catch (err) {
+      console.error('Summary fetch error:', err);
+      setSummaryError(err.message === 'Summary request timed out' 
+        ? 'Request timed out. Please try again.'
+        : 'Failed to generate summary. Backend might be disconnected.');
+      
+      // Don't fall back to cache on manual generation - user explicitly requested new data
+    } finally {
+      setSummaryLoading(false);
+      setIsGeneratingSummary(false);
+    }
+  };
+
+  const reloadData = async (forceSummary = false) => {
     setEntriesLoading(true);
     setEntriesError('');
-
+    
     const hasToken = !!localStorage.getItem("token");
-    setSummaryLoading(hasToken);      // show spinner only if user is logged in
-    setSummaryError('');
     if (!hasToken) {
-      setSummary(null);               // clear summary if logged out
+      setSummary(null);
+      return;
     }
 
+    // Always reload entries
     try {
       const entriesData = await fetchEntries();
       setEntries(Array.isArray(entriesData) ? entriesData : []);
@@ -93,15 +160,9 @@ function App() {
       setEntriesLoading(false);
     }
 
-    if (hasToken) {
-      try {
-        const summaryData = await fetchSummary();
-        setSummary(summaryData || null);
-      } catch (err) {
-        setSummaryError('Failed to Generate Summary. Please try again.');
-      } finally {
-        setSummaryLoading(false);
-      }
+    // If forcing summary update, use generateNewSummary
+    if (forceSummary) {
+      await generateNewSummary();
     }
   };
 
@@ -126,7 +187,8 @@ function App() {
         }
       });
       if (res.ok) {
-        await reloadData();
+        // Only reload entries
+        await reloadData(false);
       } else {
         console.error("Failed to delete");
       }
@@ -154,7 +216,8 @@ function App() {
 
       if (res.ok) {
         cancelEditing();
-        reloadData();
+        // Only reload entries
+        reloadData(false);
       } else {
         console.error("Failed to update entry");
       }
@@ -164,22 +227,6 @@ function App() {
   };
 
   // -------------------- Derived/UI data --------------------
-  const getSummaryToShow = () => {
-    // Only fallback if summaryError is set AND summary.aiComment includes 'daily limit'
-    if (
-      summaryError &&
-      summaryError.toLowerCase().includes("daily limit") &&
-      summary && summary.aiComment && summary.aiComment.toLowerCase().includes("daily limit")
-    ) {
-      const cached = localStorage.getItem("lastSummary");
-      if (cached) return JSON.parse(cached);
-      return null;
-    }
-    return summary;
-  };
-
-  const summaryToShow = getSummaryToShow();
-
   const pieData = summary?.currentWeek ? {
     labels: ['Income', 'Expense', 'Savings'],
     datasets: [{
@@ -216,13 +263,22 @@ function App() {
     ]
   } : null;
 
-  console.log("Summary in frontend:", summary);
-
   // -------------------- Early return for login (AFTER hooks) --------------------
+  if (authChecking) {
+    return <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      backgroundColor: '#f0f2f5'
+    }}>
+      Checking authentication...
+    </div>;
+  }
+
   if (!user) {
-    // Brute force: always reload page after login
     return <Login onLoggedIn={() => {
-      window.location.reload();
+      setUser({}); // This will trigger the useEffect to load initial data
     }} />;
   }
 
@@ -236,7 +292,7 @@ function App() {
         minHeight: '100vh'
       }}
     >
-  <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>💰 CashCompass 🧭</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>💰 CashCompass 🧭</h1>
 
       {/* Independent Logout Card */}
       <div style={{
@@ -249,7 +305,7 @@ function App() {
         margin: '0 0 2rem auto'
       }}>
         <button
-          onClick={() => { localStorage.removeItem("token"); setUser(null); }}
+          onClick={() => { clearAuth(); setUser(null); }}
           style={{
             backgroundColor: "#3498db",
             color: "#fff",
@@ -267,89 +323,104 @@ function App() {
         </button>
       </div>
 
-      {/* Summary Loading/Error/Content */}
-      {summaryLoading ? (
-        <div style={{
-          backgroundColor: '#fff',
-          padding: '1rem',
-          marginBottom: '2rem',
-          borderRadius: '8px',
-          border: '1px solid #ddd',
-          fontStyle: 'italic',
-          position: 'relative'
-        }}>
-          Generating Summary...
+      {/* Summary Section with Generate Button */}
+      <div style={{
+        backgroundColor: '#fff',
+        padding: '1rem',
+        marginBottom: '2rem',
+        borderRadius: '8px',
+        border: '1px solid #ddd',
+        position: 'relative'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h2 style={{ margin: 0 }}>Weekly Summary</h2>
+          <button
+            onClick={generateNewSummary}
+            disabled={summaryLoading || isGeneratingSummary}
+            style={{
+              backgroundColor: "#3498db",
+              color: "#fff",
+              border: "none",
+              padding: "0.7rem 1.5rem",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              cursor: summaryLoading || isGeneratingSummary ? "not-allowed" : "pointer",
+              opacity: summaryLoading || isGeneratingSummary ? 0.7 : 1,
+              transition: "all 0.2s"
+            }}
+          >
+            {summaryLoading ? "Generating..." : summary ? "Generate Another Summary" : "Generate Summary"}
+          </button>
         </div>
-      ) : summaryError && !summaryToShow ? (
-        <div style={{
-          backgroundColor: '#fff3f3',
-          padding: '1rem',
-          marginBottom: '2rem',
-          borderRadius: '8px',
-          border: '1px solid #ffcccc',
-          color: '#cc0000',
-          fontStyle: 'italic',
-          position: 'relative'
-        }}>
-          {summaryError}
-        </div>
-      ) : summaryToShow && (
-        <div
-          style={{
+
+        {summaryLoading && (
+          <div style={{
+            padding: '1rem',
+            fontStyle: 'italic',
+            textAlign: 'center'
+          }}>
+            Generating Summary...
+          </div>
+        )}
+        
+        {summaryError && (
+          <div style={{
+            backgroundColor: '#fff3f3',
+            padding: '1rem',
+            borderRadius: '8px',
+            border: '1px solid #ffcccc',
+            color: '#cc0000',
+            fontStyle: 'italic',
+            marginBottom: '1rem'
+          }}>
+            {summaryError}
+          </div>
+        )}
+        
+        {summary && !summaryLoading && (
+          <div style={{
             backgroundColor: '#fff',
             padding: '1rem',
-            marginBottom: '2rem',
             borderRadius: '8px',
-            border: '1px solid #ddd',
             position: 'relative'
-          }}
-        >
-          {summaryError && summaryError.toLowerCase().includes("daily limit") && (
-            <div style={{
-              color: "#e74c3c",
-              fontWeight: "bold",
-              marginBottom: "1rem"
-            }}>
-              Free daily limit reached. Showing last generated summary.
+          }}>
+            <div style={{ display: 'flex', gap: '2rem' }}>
+              <div style={{ flex: 1 }}>
+                <h3>This Week</h3>
+                <p><strong>Income:</strong> ${summary.currentWeek?.income ?? 0}</p>
+                <p><strong>Expense:</strong> ${summary.currentWeek?.expense ?? 0}</p>
+                <p><strong>Savings:</strong> ${summary.currentWeek?.savings ?? 0}</p>
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3>Last Week</h3>
+                <p><strong>Income:</strong> ${summary.previousWeek?.income ?? 0}</p>
+                <p><strong>Expense:</strong> ${summary.previousWeek?.expense ?? 0}</p>
+                <p><strong>Savings:</strong> ${summary.previousWeek?.savings ?? 0}</p>
+              </div>
             </div>
-          )}
-          <h2>Weekly Summary</h2>
-          <div style={{ display: 'flex', gap: '2rem' }}>
-            <div style={{ flex: 1 }}>
-              <h3>This Week</h3>
-              <p><strong>Income:</strong> ${summaryToShow.currentWeek?.income ?? 0}</p>
-              <p><strong>Expense:</strong> ${summaryToShow.currentWeek?.expense ?? 0}</p>
-              <p><strong>Savings:</strong> ${summaryToShow.currentWeek?.savings ?? 0}</p>
-            </div>
-            <div style={{ flex: 1 }}>
-              <h3>Last Week</h3>
-              <p><strong>Income:</strong> ${summaryToShow.previousWeek?.income ?? 0}</p>
-              <p><strong>Expense:</strong> ${summaryToShow.previousWeek?.expense ?? 0}</p>
-              <p><strong>Savings:</strong> ${summaryToShow.previousWeek?.savings ?? 0}</p>
-            </div>
+            {/* AI Insight */}
+            {summary.aiComment && (
+              <div
+                style={{
+                  marginTop: '1.5rem',
+                  backgroundColor: '#f6f8fa',
+                  padding: '1rem',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  color: '#333',
+                  fontSize: '0.95rem',
+                  lineHeight: '1.6',
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: marked(summary.aiComment),
+                }}
+              />
+            )}
           </div>
-          {/* AI Insight */}
-          {summaryToShow.aiComment && (
-            <div
-              style={{
-                marginTop: '1.5rem',
-                backgroundColor: '#f6f8fa',
-                padding: '1rem',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                color: '#333',
-                fontSize: '0.95rem',
-                lineHeight: '1.6',
-              }}
-              dangerouslySetInnerHTML={{
-                __html: marked(summaryToShow.aiComment), // safer across marked versions
-              }}
-            />
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
-      {summary && (
+      {summary && !summaryLoading && (
         <div style={{
           display: 'flex',
           gap: '2rem',
@@ -357,7 +428,7 @@ function App() {
           marginBottom: '2rem',
           flexWrap: 'wrap'
         }}>
-          {/* Pie Chart Card */}
+          {/* Pie Chart */}
           <div style={{
             flex: '1 1 320px',
             minWidth: 320,
@@ -385,7 +456,7 @@ function App() {
               />
             </div>
           </div>
-          {/* Line Chart Card */}
+          {/* Line Chart */}
           <div style={{
             flex: '1 1 420px',
             minWidth: 320,
@@ -420,57 +491,52 @@ function App() {
         </div>
       )}
 
+      {/* Budget Card */}
       <div style={{ width: '100%', marginBottom: '2rem' }}>
         <BudgetCard user={user} />
       </div>
-      <div
-        style={{
-          display: 'flex',
-          gap: '2rem',
-          justifyContent: 'center',
-          flexWrap: 'wrap'
-        }}
-      >
-        {/* Left Column: Add Entry + Friend Requests */}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 260px', minWidth: 260, maxWidth: 300 }}>
-          {/* Add Entry Card (smaller) */}
-          <div
-            style={{
-              padding: '1rem',
-              backgroundColor: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-              marginBottom: '1rem'
-            }}
-          >
-            <AddEntryForm onEntryAdded={reloadData} />
-          </div>
-          {/* Friend Requests Card (styled like other cards) */}
-          <div
-            style={{
-              padding: '1rem',
-              backgroundColor: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-            }}
-          >
-            <FriendRequestsCard user={user} />
-          </div>
-        </div>
 
-        {/* Entries Card */}
-        <div
-          style={{
-            flex: '2 1 500px',
-            padding: '1.5rem',
+      {/* Main Content */}
+      <div style={{
+        display: 'flex',
+        gap: '2rem',
+        justifyContent: 'center',
+        flexWrap: 'wrap'
+      }}>
+        {/* Left Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 260px', minWidth: 260, maxWidth: 300 }}>
+          {/* Add Entry */}
+          <div style={{
+            padding: '1rem',
+            backgroundColor: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            marginBottom: '1rem'
+          }}>
+            <AddEntryForm onEntryAdded={() => reloadData(false)} />
+          </div>
+          {/* Friend Requests */}
+          <div style={{
+            padding: '1rem',
             backgroundColor: '#fff',
             border: '1px solid #ddd',
             borderRadius: '12px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-          }}
-        >
+          }}>
+            <FriendRequestsCard user={user} />
+          </div>
+        </div>
+
+        {/* Entries List */}
+        <div style={{
+          flex: '2 1 500px',
+          padding: '1.5rem',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+        }}>
           <h2 style={{ marginBottom: '1rem' }}>Entries</h2>
 
           {entriesLoading && <p style={{ fontStyle: 'italic' }}>Loading entries...</p>}
@@ -616,7 +682,7 @@ function App() {
         </div>
       </div>
 
-      {/* Chat Section - Conditionally Rendered */}
+      {/* Chat Section */}
       {friends.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           <h2>Friends</h2>

@@ -6,7 +6,9 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
     category: '',
     amount: '',
     note: '',
-    date: new Date().toISOString().split("T")[0] // ✅ default to today
+    date: new Date().toISOString().split("T")[0], // ✅ default to today
+    isRecurring: false,
+    recurringPeriod: 'monthly'
   });
 
   const [message, setMessage] = useState('');
@@ -50,6 +52,8 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
           amount: "",
           note: "",
           date: new Date().toISOString().split("T")[0], // reset to today
+          isRecurring: false,
+          recurringPeriod: 'monthly'
         });
 
         if (onEntryAdded) onEntryAdded(); // 🔹 refresh entries in parent
@@ -133,6 +137,37 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             style={{ flex: 1 }} 
           />
         </div>
+
+        {/* Recurring Options (only show for expenses) */}
+        {entry.type === 'expense' && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <label style={{ width: '80px' }}>Recurring:</label>
+              <input
+                type="checkbox"
+                name="isRecurring"
+                checked={entry.isRecurring}
+                onChange={(e) => setEntry({ ...entry, isRecurring: e.target.checked })}
+                style={{ margin: '0' }}
+              />
+            </div>
+
+            {entry.isRecurring && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <label style={{ width: '80px' }}>Period:</label>
+                <select
+                  name="recurringPeriod"
+                  value={entry.recurringPeriod}
+                  onChange={handleChange}
+                  style={{ flex: 1 }}
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+            )}
+          </>
+        )}
 
         {/* Submit */}
         <button 

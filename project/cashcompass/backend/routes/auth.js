@@ -39,6 +39,29 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// GET /api/auth/verify - Verify token validity
+router.get("/verify", async (req, res) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      return res.status(401).json({ valid: false });
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return res.status(401).json({ valid: false });
+      }
+      return res.json({ valid: true });
+    } catch (err) {
+      return res.status(401).json({ valid: false });
+    }
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
   try {

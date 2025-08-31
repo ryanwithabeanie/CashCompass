@@ -8,18 +8,32 @@ require('dotenv').config();
 // Create new entry (protected)
 router.post('/add', auth, async (req, res) => {
   try {
-    const { amount, category, type, note, date } = req.body; // <-- use note (matches schema)
+    const { amount, category, type, note, date, isRecurring, recurringPeriod } = req.body;
     if (!amount || !category || !type) {
       return res.status(400).json({ error: "Amount, category, and type are required" });
+    }
+
+    // Calculate next due date for recurring expenses
+    let nextDueDate = null;
+    if (isRecurring && type === 'expense') {
+      const startDate = new Date(date);
+      if (recurringPeriod === 'monthly') {
+        nextDueDate = new Date(startDate.setMonth(startDate.getMonth() + 1));
+      } else if (recurringPeriod === 'yearly') {
+        nextDueDate = new Date(startDate.setFullYear(startDate.getFullYear() + 1));
+      }
     }
 
     const newEntry = new Entry({
       amount,
       category,
-      type,           // 'income' | 'expense'
+      type,
       note: note || '',
       date: date || new Date(),
-      user: req.user.id // <-- schema uses 'user'
+      user: req.user.id,
+      isRecurring: isRecurring && type === 'expense', // Only allow recurring for expenses
+      recurringPeriod: isRecurring && type === 'expense' ? recurringPeriod : null,
+      nextDueDate
     });
 
     const savedEntry = await newEntry.save();

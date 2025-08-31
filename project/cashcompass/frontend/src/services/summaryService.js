@@ -6,13 +6,36 @@ function authHeaders() {
 }
 
 export async function fetchSummary() {
-  const res = await fetch(API, { headers: { ...authHeaders() } });
+  // Create an AbortController to handle timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-  if (!res.ok) {
-    const text = await res.text();   // 👀 show what backend sent
-    console.error("Summary fetch failed:", res.status, text);
-    throw new Error("Failed to fetch summary");
+  try {
+    const res = await fetch(API, { 
+      headers: { ...authHeaders() },
+      signal: controller.signal
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Summary fetch failed:", res.status, text);
+      throw new Error("Failed to fetch summary");
+    }
+
+    const data = await res.json();
+    clearTimeout(timeoutId);
+    
+    if (!data) {
+      throw new Error("No summary data received");
+    }
+
+    return data;
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error("Summary request timed out");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return res.json();
 }

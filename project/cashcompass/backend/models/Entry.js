@@ -34,7 +34,10 @@ const EntrySchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   note: String,
   date: { type: Date, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true } // <-- add this
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  isRecurring: { type: Boolean, default: false },
+  recurringPeriod: { type: String, enum: ['monthly', 'yearly'], default: null },
+  nextDueDate: { type: Date, default: null }
 });
 
 module.exports = mongoose.model('Entry', EntrySchema);
