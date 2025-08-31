@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { setBudget, getBudget } from './services/budgetService';
 
 export default function BudgetCard({ user }) {
@@ -10,7 +10,7 @@ export default function BudgetCard({ user }) {
   const token = localStorage.getItem('token');
 
   // Function to calculate current week's expenses
-  const fetchCurrentWeekExpenses = async () => {
+  const fetchCurrentWeekExpenses = useCallback(async () => {
     try {
       const res = await fetch('http://localhost:5000/api/entries', {
         headers: { Authorization: `Bearer ${token}` }
@@ -39,7 +39,7 @@ export default function BudgetCard({ user }) {
       console.error('Error fetching weekly expenses:', err);
       setError('Failed to load weekly expenses');
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -62,7 +62,7 @@ export default function BudgetCard({ user }) {
     };
 
     loadBudgetAndExpenses();
-  }, [token]);
+  }, [token, fetchCurrentWeekExpenses]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +88,7 @@ export default function BudgetCard({ user }) {
       backdropFilter: 'blur(12px)',
       marginBottom: '2rem'
     }}>
-      <h2 style={{ marginBottom: '1.5rem', color: '#3498db' }}>Weekly Budget Monitor</h2>
+      <h2 style={{ marginBottom: '1.5rem', color: '#000' }}>Weekly Budget Monitor</h2>
       
       <form onSubmit={handleSubmit} style={{ 
         display: 'flex', 
