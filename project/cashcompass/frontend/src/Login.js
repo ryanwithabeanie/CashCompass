@@ -72,11 +72,11 @@ export default function Login({ onLoggedIn }) {
           width: "100%",
           margin: "3rem auto",
           padding: "2rem",
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "rgba(255, 255, 255, 0.1)",
           border: "1px solid rgba(255, 255, 255, 0.2)",
           borderRadius: 16,
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-          backdropFilter: "blur(8px)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(12px)",
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
@@ -96,7 +96,10 @@ export default function Login({ onLoggedIn }) {
                 padding: 10,
                 marginBottom: 10,
                 borderRadius: 8,
-                border: "1px solid #ccc",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(8px)",
+                color: "#222"
               }}
               required
             />
@@ -111,7 +114,10 @@ export default function Login({ onLoggedIn }) {
               padding: 10,
               marginBottom: 10,
               borderRadius: 8,
-              border: "1px solid #ccc",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(8px)",
+              color: "#222"
             }}
             required
           />
@@ -125,7 +131,10 @@ export default function Login({ onLoggedIn }) {
               padding: 10,
               marginBottom: 10,
               borderRadius: 8,
-              border: "1px solid #ccc",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(8px)",
+              color: "#222"
             }}
             required
           />

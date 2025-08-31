@@ -67,10 +67,11 @@ function FriendRequestsCard({ user }) {
 
   return (
     <div style={{
-      background: "#fff",
-      border: "1px solid #ddd",
+      background: "rgba(255, 255, 255, 0.1)",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
       borderRadius: "12px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      backdropFilter: "blur(12px)",
       padding: "1.5rem",
       maxWidth: 400,
       width: "100%", // Make the card fill its container

@@ -183,11 +183,13 @@ export default function WeeklyPlannerCard() {
 
   return (
     <div style={{
-      background: '#fff',
-      borderRadius: '16px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.07)',
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
       padding: '1.5rem',
-      marginBottom: '2rem'
+      marginBottom: '2rem',
+      backdropFilter: 'blur(12px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)'
     }}>
       <h2 style={{
         margin: '0 0 1.5rem',

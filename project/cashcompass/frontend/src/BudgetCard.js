@@ -81,11 +81,11 @@ export default function BudgetCard({ user }) {
   return (
     <div style={{
       padding: '1.5rem',
-      background: 'rgba(255, 255, 255, 0.95)',
+      background: 'rgba(255, 255, 255, 0.1)',
       borderRadius: '12px',
       border: '1px solid rgba(255, 255, 255, 0.2)',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      backdropFilter: 'blur(8px)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      backdropFilter: 'blur(12px)',
       marginBottom: '2rem'
     }}>
       <h2 style={{ marginBottom: '1.5rem', color: '#3498db' }}>Weekly Budget Monitor</h2>
@@ -95,9 +95,11 @@ export default function BudgetCard({ user }) {
         gap: '1rem', 
         alignItems: 'center', 
         marginBottom: '1.5rem',
-        background: 'rgba(255, 255, 255, 0.5)',
+        background: 'rgba(255, 255, 255, 0.1)',
         padding: '1rem',
-        borderRadius: '8px'
+        borderRadius: '8px',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
         <div>
           <label style={{ marginRight: '0.5rem' }}>Set Weekly Budget: $</label>

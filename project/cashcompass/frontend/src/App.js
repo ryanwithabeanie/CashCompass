@@ -459,12 +459,13 @@ function App() {
 
       {/* Summary Section with Generate Button */}
       <div style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         padding: '1rem',
         marginBottom: '2rem',
-        borderRadius: '8px',
+        borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.2)',
-        backdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         position: 'relative'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -473,15 +474,16 @@ function App() {
             onClick={generateNewSummary}
             disabled={summaryLoading || isGeneratingSummary}
             style={{
-              backgroundColor: "#3498db",
-              color: "#fff",
-              border: "none",
+              backgroundColor: "rgba(52, 152, 219, 0.1)",
+              color: "#222",
+              border: "1px solid rgba(52, 152, 219, 0.2)",
               padding: "0.7rem 1.5rem",
-              borderRadius: "8px",
+              borderRadius: "12px",
               fontWeight: "bold",
               cursor: summaryLoading || isGeneratingSummary ? "not-allowed" : "pointer",
               opacity: summaryLoading || isGeneratingSummary ? 0.7 : 1,
-              transition: "all 0.2s"
+              transition: "all 0.2s",
+              backdropFilter: "blur(8px)"
             }}
           >
             {summaryLoading ? "Generating..." : summary ? "Generate Another Summary" : "Generate Summary"}
@@ -514,10 +516,12 @@ function App() {
         
         {summary && !summaryLoading && (
           <div style={{
-            backgroundColor: '#fff',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
             padding: '1rem',
-            borderRadius: '8px',
-            position: 'relative'
+            borderRadius: '12px',
+            position: 'relative',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
           }}>
             <div style={{ display: 'flex', gap: '2rem' }}>
               <div style={{ flex: 1 }}>
@@ -568,11 +572,11 @@ function App() {
             flex: '1 1 320px',
             minWidth: 320,
             maxWidth: 400,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(12px)',
             padding: '1.5rem',
             display: 'flex',
             flexDirection: 'column',
@@ -597,10 +601,11 @@ function App() {
             flex: '1 1 420px',
             minWidth: 320,
             maxWidth: 500,
-            backgroundColor: '#fff',
-            border: '1px solid #ddd',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(12px)',
             padding: '1.5rem',
             display: 'flex',
             flexDirection: 'column',
@@ -654,10 +659,11 @@ function App() {
           {/* Add Entry */}
           <div style={{
             padding: '1rem',
-            backgroundColor: '#fff',
-            border: '1px solid #ddd',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(12px)',
             marginBottom: '1rem'
           }}>
             <AddEntryForm onEntryAdded={() => reloadData(false)} />
@@ -665,10 +671,11 @@ function App() {
           {/* Friend Requests */}
           <div style={{
             padding: '1rem',
-            backgroundColor: '#fff',
-            border: '1px solid #ddd',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(12px)'
           }}>
             <FriendRequestsCard user={user} />
           </div>
@@ -678,10 +685,11 @@ function App() {
         <div style={{
           flex: '2 1 500px',
           padding: '1.5rem',
-          backgroundColor: '#fff',
-          border: '1px solid #ddd',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(12px)'
         }}>
           <h2 style={{ marginBottom: '1rem' }}>Entries</h2>
 
