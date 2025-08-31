@@ -3,101 +3,149 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './CalendarCard.css';
 
-export default function CalendarCard({ entries }) {
-  // Debug logging
-  console.log('Calendar Entries:', entries);
-  
-  // Function to format date as YYYY-MM-DD in local timezone
-  const formatDate = (date) => {
+export default function CalendarCard({ entries = [] }) {
+  console.log('CalendarCard received entries:', entries);
+
+  // Helper function to format date consistently
+  const formatDateToString = (date) => {
     const d = new Date(date);
+    // Ensure we're working with local timezone
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
-  // Group entries by date and type
-  const entryDates = entries.reduce((acc, entry) => {
-    // Ensure we have a date string to work with
-    if (!entry.date) return acc;
+  // Create a map of dates to entry types
+  const dateEntryMap = {};
+  
+  entries.forEach(entry => {
+    if (!entry.date || !entry.type) return;
     
-    // Convert the entry date to local timezone and format it
-    const date = formatDate(entry.date);
+    const dateStr = formatDateToString(entry.date);
     
-    if (!acc[date]) {
-      acc[date] = { income: false, expense: false };
+    if (!dateEntryMap[dateStr]) {
+      dateEntryMap[dateStr] = {
+        hasIncome: false,
+        hasExpense: false
+      };
     }
-    acc[date][entry.type] = true;
-    return acc;
-  }, {});
-
-  // Function to determine tile color based on entry types
-  const getTileColor = (date) => {
-    // Convert the calendar tile date to local timezone YYYY-MM-DD format
-    const localDate = new Date(date);
-    const dateStr = formatDate(localDate);
     
-    // Debug logging
-    console.log('Checking date:', dateStr, 'Has entry:', !!entryDates[dateStr], 'Entry info:', entryDates[dateStr]);
-    
-    const dateInfo = entryDates[dateStr];
-    if (!dateInfo) return null;
+    if (entry.type === 'income') {
+      dateEntryMap[dateStr].hasIncome = true;
+    } else if (entry.type === 'expense') {
+      dateEntryMap[dateStr].hasExpense = true;
+    }
+  });
 
-    if (dateInfo.income && dateInfo.expense) return 'var(--both-color)';
-    if (dateInfo.income) return 'var(--income-color)';
-    if (dateInfo.expense) return 'var(--expense-color)';
-    return null;
+  console.log('Date entry map:', dateEntryMap);
+
+  // Function to get tile class for a given date
+  const getTileClass = (date) => {
+    const dateStr = formatDateToString(date);
+    const dayData = dateEntryMap[dateStr];
+    
+    if (!dayData) return '';
+    
+    if (dayData.hasIncome && dayData.hasExpense) {
+      return 'calendar-tile-both';
+    } else if (dayData.hasIncome) {
+      return 'calendar-tile-income';
+    } else if (dayData.hasExpense) {
+      return 'calendar-tile-expense';
+    }
+    
+    return '';
   };
-
-  // Debug logging
-  console.log('Entry Dates:', entryDates);
-  console.log('Sample Entry:', entries[0]);
 
   return (
     <div style={{
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      padding: '1.5rem',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      padding: '1.5rem 0.75rem',
       borderRadius: '12px',
       border: '1px solid rgba(255, 255, 255, 0.2)',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      backdropFilter: 'blur(8px)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      backdropFilter: 'blur(12px)',
       marginBottom: '2rem'
     }}>
-      <h2 style={{ marginBottom: '1.5rem', color: '#3498db', textAlign: 'center' }}>Financial Calendar</h2>
-      <div className="calendar-container">
+      <h2 style={{ 
+        marginBottom: '1.5rem', 
+        color: '#222', 
+        textAlign: 'center',
+        fontSize: '1.5rem',
+        fontWeight: '600'
+      }}>
+        Financial Calendar
+      </h2>
+      
+      <div className="calendar-wrapper">
         <Calendar
-          className="custom-calendar"
+          className="financial-calendar"
           tileClassName={({ date, view }) => {
-            if (view !== 'month') return null;
-            const color = getTileColor(date);
-            if (!color) return '';
-            const colorClass = color === 'var(--income-color)' ? 'income' :
-                             color === 'var(--expense-color)' ? 'expense' : 'both';
-            return `highlighted ${colorClass}`;
+            if (view === 'month') {
+              return getTileClass(date);
+            }
+            return null;
           }}
-          formatDay={(locale, date) => date.getDate().toString()} // Simple day display
         />
       </div>
-      <div style={{ 
-        marginTop: '1.5rem',
+
+      {/* Legend */}
+      <div style={{
         display: 'flex',
         justifyContent: 'center',
         gap: '2rem',
-        fontSize: '0.95rem'
+        marginTop: '1.5rem',
+        fontSize: '0.9rem'
       }}>
-        <div className="legend-item income">
-          <span className="legend-dot"></span>
-          Income
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{
+            width: '16px',
+            height: '16px',
+            backgroundColor: '#2ecc71',
+            borderRadius: '4px'
+          }}></div>
+          <span style={{ color: '#222' }}>Income</span>
         </div>
-        <div className="legend-item expense">
-          <span className="legend-dot"></span>
-          Expense
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{
+            width: '16px',
+            height: '16px',
+            backgroundColor: '#e74c3c',
+            borderRadius: '4px'
+          }}></div>
+          <span style={{ color: '#222' }}>Expense</span>
         </div>
-        <div className="legend-item both">
-          <span className="legend-dot"></span>
-          Both
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{
+            width: '16px',
+            height: '16px',
+            backgroundColor: '#3498db',
+            borderRadius: '4px'
+          }}></div>
+          <span style={{ color: '#222' }}>Both</span>
         </div>
       </div>
+
+      {entries.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          marginTop: '1.5rem',
+          padding: '1rem',
+          backgroundColor: 'rgba(52, 152, 219, 0.1)',
+          borderRadius: '8px',
+          border: '1px solid rgba(52, 152, 219, 0.2)'
+        }}>
+          <p style={{ color: '#222', margin: '0 0 0.5rem 0' }}>
+            No entries found. Add some income or expense entries to see them highlighted on the calendar!
+          </p>
+          <small style={{ color: '#666' }}>
+            💡 Use the "Add Entry" form to create your first entry
+          </small>
+        </div>
+      )}
     </div>
   );
 }
