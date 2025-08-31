@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AddEntryForm from './AddEntryForm';
 import { fetchEntries } from './services/entryService';
+import bgImage from './assets/bg.jpg';
 import { fetchSummary } from './services/summaryService';
 import { validateToken, clearAuth } from './services/authService';
 import { marked } from 'marked';
@@ -333,35 +334,90 @@ function App() {
       style={{
         padding: '2rem',
         fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#f0f2f5',
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
         minHeight: '100vh'
       }}
     >
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>💰 CashCompass 🧭</h1>
-
-      {/* Independent Logout Card */}
+      {/* App Header */}
       <div style={{
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(52,152,219,0.08)',
-        padding: '1rem',
-        width: 'fit-content',
-        margin: '0 0 2rem auto'
+        background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
+        padding: '1.5rem',
+        marginBottom: '2rem',
+        borderRadius: '12px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
       }}>
+        {/* Logo and Title Section */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem'
+        }}>
+          <img 
+            src={require('./assets/2.png')} 
+            alt="CashCompass Logo" 
+            style={{
+              height: '60px',
+              width: 'auto',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+            }}
+          />
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.3rem'
+          }}>
+            <h1 style={{
+              margin: 0,
+              color: '#ffffff',
+              fontSize: '2.5rem',
+              fontFamily: '"Segoe UI", Arial, sans-serif',
+              fontWeight: '600',
+              letterSpacing: '1px',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              CashCompass
+            </h1>
+            <span style={{
+              color: '#ffffff',
+              fontSize: '1.1rem',
+              fontWeight: '400',
+              opacity: '0.9',
+              fontStyle: 'italic',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+            }}>
+              Your ultimate finance tracker
+            </span>
+          </div>
+        </div>
+
+        {/* Logout Button */}
         <button
           onClick={() => { clearAuth(); setUser(null); }}
           style={{
-            backgroundColor: "#3498db",
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
             color: "#fff",
-            border: "none",
+            border: "2px solid rgba(255, 255, 255, 0.3)",
             padding: "0.7rem 1.5rem",
             borderRadius: "8px",
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-            boxShadow: "0 2px 8px rgba(52,152,219,0.15)",
+            fontWeight: "600",
+            fontSize: "1rem",
             cursor: "pointer",
-            transition: "background 0.2s"
+            transition: "all 0.2s",
+            backdropFilter: "blur(5px)",
+            textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+            hover: {
+              backgroundColor: "rgba(255, 255, 255, 0.25)",
+              borderColor: "rgba(255, 255, 255, 0.4)"
+            }
           }}
         >
           Logout
@@ -370,11 +426,12 @@ function App() {
 
       {/* Summary Section with Generate Button */}
       <div style={{
-        backgroundColor: '#fff',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         padding: '1rem',
         marginBottom: '2rem',
         borderRadius: '8px',
-        border: '1px solid #ddd',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        backdropFilter: 'blur(8px)',
         position: 'relative'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -478,10 +535,11 @@ function App() {
             flex: '1 1 320px',
             minWidth: 320,
             maxWidth: 400,
-            backgroundColor: '#fff',
-            border: '1px solid #ddd',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            backdropFilter: 'blur(8px)',
             padding: '1.5rem',
             display: 'flex',
             flexDirection: 'column',
@@ -737,7 +795,6 @@ function App() {
       {/* Chat Section */}
       {friends.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
-          <h2>Friends</h2>
           <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
             {friends.map(friend => (
               <ChatCard 

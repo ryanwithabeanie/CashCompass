@@ -1,4 +1,6 @@
 import { useState } from "react";
+import logo from './assets/1.png';
+import bgImage from './assets/bg.jpg';
 
 export default function Login({ onLoggedIn }) {
   const [mode, setMode] = useState("login"); // 'login' | 'register'
@@ -55,7 +57,10 @@ export default function Login({ onLoggedIn }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #3498db 0%, #6dd5fa 100%)",
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       <div
@@ -64,13 +69,17 @@ export default function Login({ onLoggedIn }) {
           width: "100%",
           margin: "3rem auto",
           padding: "2rem",
-          background: "#fff",
-          border: "1px solid #ddd",
+          background: "rgba(255, 255, 255, 0.95)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
           borderRadius: 16,
-          boxShadow: "0 8px 32px rgba(52,152,219,0.15)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(8px)",
         }}
       >
-        <h2 style={{ marginBottom: "1rem", color: "#3498db" }}>
+        <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+          <img src={logo} alt="CashCompass Logo" style={{ width: '120px', height: '120px', marginBottom: '0.5rem' }} />
+        </div>
+        <h2 style={{ marginBottom: "1rem", color: "#3498db", textAlign: 'center' }}>
           {mode === "login" ? "Login" : "Register"}
         </h2>
         <form onSubmit={submit}>
