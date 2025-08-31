@@ -702,7 +702,7 @@ function App() {
           {entriesLoading && <p style={{ fontStyle: 'italic' }}>Loading entries...</p>}
           {entriesError && <p style={{ color: 'red' }}>{entriesError}</p>}
 
-          <label>
+          <label style={{ marginBottom: '1rem', display: 'block' }}>
             Filter Entries:
             <select
               value={filter}

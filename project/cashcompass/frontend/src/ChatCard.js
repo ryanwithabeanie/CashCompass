@@ -358,22 +358,24 @@ export default function ChatCard({ user, friend, isExpanded, onToggleExpand }) {
                 }}
               />
               <button
-                onClick={handleSendMessage}
+                onClick={() => {
+                  // Simulate Enter key press
+                  if (newMessage.trim() && friend) {
+                    handleSendMessage();
+                  }
+                }}
                 disabled={!friend || !newMessage.trim()}
                 style={{
                   padding: '0.75rem 1.25rem',
                   borderRadius: '20px',
-                  border: '1px solid rgba(52, 152, 219, 0.3)',
-                  background: (!friend || !newMessage.trim()) 
-                    ? 'rgba(52, 152, 219, 0.2)' 
-                    : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
-                  backdropFilter: 'blur(8px)',
-                  color: (!friend || !newMessage.trim()) ? '#222' : '#fff',
+                  border: 'none',
+                  background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
+                  color: '#fff',
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   cursor: (!friend || !newMessage.trim()) ? 'not-allowed' : 'pointer',
-                  opacity: (!friend || !newMessage.trim()) ? 0.5 : 1,
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  opacity: (!friend || !newMessage.trim()) ? 0.5 : 1
                 }}
               >
                 Send

@@ -234,7 +234,9 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             border: 'none',
             borderRadius: '6px',
             fontSize: '1rem',
-            cursor: 'pointer'
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            fontFamily: 'inherit'
           }}
         >
           Add Entry
