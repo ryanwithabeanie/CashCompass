@@ -38,7 +38,10 @@ export default function Login({ onLoggedIn }) {
         return;
       }
 
-      // ✅ login success: save token + user in localStorage
+      // ✅ login success: clear old data first
+      localStorage.clear(); // Clear all stored data
+      
+      // Then save new token + user
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 

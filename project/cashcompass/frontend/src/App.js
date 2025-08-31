@@ -3,6 +3,7 @@ import AddEntryForm from './AddEntryForm';
 import { fetchEntries } from './services/entryService';
 import bgImage from './assets/bg.jpg';
 import { fetchSummary } from './services/summaryService';
+import CalendarCard from './CalendarCard';
 import { validateToken, clearAuth } from './services/authService';
 import { marked } from 'marked';
 import Login from "./Login";
@@ -95,12 +96,21 @@ function App() {
 
   // Load initial data and friends when user is validated
   useEffect(() => {
+    // Clear all data when user is null
     if (!user) {
       setFriends([]);
       setEntries([]);
       setSummary(null);
+      setFilter('all');
+      setEntriesLoading(false);
+      setEntriesError('');
+      setSummaryLoading(false);
+      setSummaryError('');
       return;
     }
+
+    // Debug logging
+    console.log('Current User:', user);
 
     // Load data only once when user is first set
     const loadInitialData = async () => {
@@ -108,9 +118,12 @@ function App() {
       
       // Load entries first
       try {
+        console.log('Fetching entries for user:', user.id);
         const entriesData = await fetchEntries();
+        console.log('Received entries:', entriesData);
         setEntries(Array.isArray(entriesData) ? entriesData : []);
       } catch (err) {
+        console.error('Error fetching entries:', err);
         setEntriesError('Failed to load entries.');
       }
 
@@ -323,8 +336,22 @@ function App() {
   }
 
   if (!user) {
-    return <Login onLoggedIn={() => {
-      setUser({}); // This will trigger the useEffect to load initial data
+    return <Login onLoggedIn={async (userData) => {
+      console.log('New user logging in:', userData);
+      // Clear any existing data first
+      setEntries([]);
+      setFriends([]);
+      setSummary(null);
+      // Set the new user, which will trigger the useEffect to load their data
+      setUser(userData);
+      // Force a new fetch of entries
+      try {
+        const entriesData = await fetchEntries();
+        console.log('Initial entries load:', entriesData);
+        setEntries(Array.isArray(entriesData) ? entriesData : []);
+      } catch (err) {
+        console.error('Error loading initial entries:', err);
+      }
     }} />;
   }
 
@@ -401,7 +428,13 @@ function App() {
 
         {/* Logout Button */}
         <button
-          onClick={() => { clearAuth(); setUser(null); }}
+          onClick={() => { 
+            clearAuth(); 
+            setUser(null);
+            setEntries([]);
+            setFriends([]);
+            setSummary(null);
+          }}
           style={{
             backgroundColor: "rgba(255, 255, 255, 0.15)",
             color: "#fff",
@@ -602,6 +635,11 @@ function App() {
       {/* Weekly Planner Card */}
       <div style={{ width: '100%', marginBottom: '2rem' }}>
         <WeeklyPlannerCard />
+      </div>
+
+      {/* Calendar Card */}
+      <div style={{ width: '100%', marginBottom: '2rem' }}>
+        <CalendarCard entries={entries} />
       </div>
 
       {/* Main Content */}

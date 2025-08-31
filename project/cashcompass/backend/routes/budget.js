@@ -6,19 +6,15 @@ const auth = require('../middleware/auth');
 
 // Set or update budget
 router.post('/set', auth, async (req, res) => {
-  const { amount, salary } = req.body;
-  if (amount > salary) {
-    return res.status(400).json({ error: 'Budget cannot exceed salary.' });
-  }
+  const { amount } = req.body;
   try {
     let budget = await Budget.findOne({ user: req.user.id });
     if (budget) {
       budget.amount = amount;
-      budget.salary = salary;
       budget.notified = false;
       await budget.save();
     } else {
-      budget = await Budget.create({ user: req.user.id, amount, salary });
+      budget = await Budget.create({ user: req.user.id, amount });
     }
     res.json(budget);
   } catch (err) {
@@ -30,7 +26,7 @@ router.post('/set', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
   try {
     const budget = await Budget.findOne({ user: req.user.id });
-    if (!budget) return res.json({ amount: 0, salary: 0, progress: 0 });
+    if (!budget) return res.json({ amount: 0, progress: 0 });
     const entries = await Entry.find({ user: req.user.id, type: 'expense' });
     const totalExpense = entries.reduce((sum, e) => sum + e.amount, 0);
     const progress = budget.amount > 0 ? totalExpense / budget.amount : 0;
@@ -41,7 +37,7 @@ router.get('/', auth, async (req, res) => {
       await budget.save();
       notify = true;
     }
-    res.json({ amount: budget.amount, salary: budget.salary, expense: totalExpense, progress, notify });
+    res.json({ amount: budget.amount, expense: totalExpense, progress, notify });
   } catch (err) {
     res.status(500).json({ error: 'Server error.' });
   }

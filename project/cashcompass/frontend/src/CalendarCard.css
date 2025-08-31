@@ -1,0 +1,127 @@
+:root {
+  --income-color: rgba(46, 204, 113, 0.9);
+  --expense-color: rgba(231, 76, 60, 0.9);
+  --both-color: rgba(52, 152, 219, 0.9);
+}
+
+.calendar-container {
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.custom-calendar {
+  width: 100% !important;
+  max-width: none !important;
+  background: transparent !important;
+  border: none !important;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.react-calendar__tile {
+  padding: 1em 0.5em !important;
+  position: relative;
+  height: 80px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #e74c3c !important;
+}
+
+.react-calendar__tile--now {
+  background: rgba(52, 152, 219, 0.1) !important;
+}
+
+.react-calendar__tile--active {
+  background: rgba(52, 152, 219, 0.2) !important;
+}
+
+.react-calendar__tile.highlighted {
+  color: white !important;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.react-calendar__tile.highlighted.income {
+  background-color: var(--income-color) !important;
+}
+
+.react-calendar__tile.highlighted.expense {
+  background-color: var(--expense-color) !important;
+}
+
+.react-calendar__tile.highlighted.both {
+  background-color: var(--both-color) !important;
+}
+
+.react-calendar__navigation {
+  margin-bottom: 1rem;
+}
+
+.react-calendar__navigation button {
+  background: transparent !important;
+  padding: 1rem !important;
+  color: #3498db;
+  font-weight: bold;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: rgba(52, 152, 219, 0.1) !important;
+}
+
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.9em;
+  padding: 0.5rem 0;
+  color: #3498db;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 0.5rem 0 !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+/* Legend styling */
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.legend-item.income .legend-dot {
+  background-color: var(--income-color);
+}
+
+.legend-item.expense .legend-dot {
+  background-color: var(--expense-color);
+}
+
+.legend-item.both .legend-dot {
+  background-color: var(--both-color);
+}
+
+/* Hover effects */
+.react-calendar__tile:hover {
+  background-color: rgba(52, 152, 219, 0.1) !important;
+}
+
+.react-calendar__tile.highlighted:hover {
+  filter: brightness(1.1);
+}
