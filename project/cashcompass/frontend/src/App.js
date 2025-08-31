@@ -55,11 +55,24 @@ function App() {
         if (!isValid) {
           clearAuth();
           setUser(null);
-        } else {
-          setUser({});
-          // Clear any previous user's summary data
+          // Clear all cached data
           setSummary(null);
           localStorage.removeItem("lastSummary");
+          localStorage.removeItem("lastSummaryUserId");
+          localStorage.removeItem("lastSummaryTime");
+        } else {
+          // Get user info from the token
+          const token = localStorage.getItem("token");
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          const decoded = JSON.parse(jsonPayload);
+          
+          setUser(decoded);
+          // Clear any previous summary data
+          setSummary(null);
+          localStorage.removeItem("lastSummary");
+          localStorage.removeItem("lastSummaryUserId");
           localStorage.removeItem("lastSummaryTime");
         }
       } catch (err) {
@@ -111,14 +124,25 @@ function App() {
         setFriends([]);
       }
 
-      // Try to load cached summary
+      // Try to load cached summary for this user
       const cachedSummary = localStorage.getItem("lastSummary");
-      if (cachedSummary) {
+      const cachedUserId = localStorage.getItem("lastSummaryUserId");
+      const currentUserId = localStorage.getItem("user");
+      
+      // Only load cached summary if it belongs to the current user
+      if (cachedSummary && cachedUserId === currentUserId) {
         try {
           setSummary(JSON.parse(cachedSummary));
         } catch (e) {
           console.error("Failed to parse cached summary");
+          localStorage.removeItem("lastSummary");
+          localStorage.removeItem("lastSummaryUserId");
         }
+      } else {
+        // Clear summary if it belongs to a different user
+        setSummary(null);
+        localStorage.removeItem("lastSummary");
+        localStorage.removeItem("lastSummaryUserId");
       }
     };
 
@@ -142,8 +166,13 @@ function App() {
         }
         
         setSummary(summaryData);
-        localStorage.setItem("lastSummary", JSON.stringify(summaryData));
-        localStorage.setItem("lastSummaryTime", Date.now().toString());
+        
+        // Save summary with user ID
+        if (user?.id) {
+          localStorage.setItem("lastSummary", JSON.stringify(summaryData));
+          localStorage.setItem("lastSummaryUserId", user.id);
+          localStorage.setItem("lastSummaryTime", Date.now().toString());
+        }
       }
     } catch (err) {
       console.error('Summary fetch error:', err);
