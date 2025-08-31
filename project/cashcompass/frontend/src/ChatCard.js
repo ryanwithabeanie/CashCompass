@@ -2,283 +2,383 @@ import React, { useEffect, useRef, useState } from "react";
 
 export default function ChatCard({ user, friend, isExpanded, onToggleExpand }) {
   const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
+  const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // Normalize id: string, object {_id}, number
-  const getId = (val) => {
-    if (!val) return null;
-    if (typeof val === "string") return val;
-    if (typeof val === "object") return val._id || val.id || null;
-    return String(val);
+  // Helper function to get ID from user/friend object
+  const getUserId = (userObj) => {
+    if (!userObj) return null;
+    if (typeof userObj === "string") return userObj;
+    return userObj._id || userObj.id || null;
   };
 
-  const currentUserId = getId(user?._id || user?.id || user);
-  const friendId = getId(friend?._id || friend?.id || friend);
+  const currentUserId = getUserId(user);
+  const friendId = getUserId(friend);
 
-  // Clear messages when collapsed
-  useEffect(() => {
-    if (!isExpanded) {
-      setMessages([]);
-    }
-  }, [isExpanded]);
-
-  // Fetch chat history
-  useEffect(() => {
-    if (!friend || !isExpanded) return;
-    const abort = new AbortController();
-    const token = localStorage.getItem("token");
-    setLoading(true);
-    setError(null);
-
-    fetch(`http://localhost:5000/api/chat/history/${friendId}`, {
-      signal: abort.signal,
-      headers: { Authorization: token ? `Bearer ${token}` : undefined },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then((data) => {
-        const msgs = Array.isArray(data) ? data : data.messages || [];
-        setMessages(msgs);
-      })
-      .catch((err) => {
-        if (err.name === "AbortError") return;
-        console.error(err);
-        setError("Failed to load chat history.");
-      })
-      .finally(() => setLoading(false));
-
-    return () => abort.abort();
-  }, [friendId, isExpanded, friend]);
-
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Send message
-  const sendMessage = async () => {
-    if (!text.trim() || !friend) return;
+  // Clear messages when chat is collapsed
+  useEffect(() => {
+    if (!isExpanded) {
+      setMessages([]);
+      setError(null);
+    }
+  }, [isExpanded]);
 
-    const token = localStorage.getItem("token");
-    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    const optimisticMsg = {
-      _id: tempId,
-      message: text,
+  // Fetch chat history when expanded
+  useEffect(() => {
+    if (!isExpanded || !friend || !friendId) return;
+
+    const loadChatHistory = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:5000/api/chat/history/${friendId}`, {
+          headers: {
+            "Authorization": token ? `Bearer ${token}` : "",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load chat history");
+        }
+
+        const data = await response.json();
+        const chatMessages = Array.isArray(data) ? data : data.messages || [];
+        setMessages(chatMessages);
+      } catch (err) {
+        console.error("Error loading chat:", err);
+        setError("Failed to load chat history");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChatHistory();
+  }, [isExpanded, friendId, friend]);
+
+  // Send a new message
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !friend || !friendId) return;
+
+    const messageText = newMessage.trim();
+    setNewMessage("");
+
+    // Add optimistic message
+    const tempMessage = {
+      _id: `temp-${Date.now()}`,
+      message: messageText,
       from: currentUserId,
       to: friendId,
       timestamp: new Date().toISOString(),
+      isTemporary: true
     };
 
-    setMessages((prev) => [...prev, optimisticMsg]);
-    setText("");
-    setError(null);
+    setMessages(prev => [...prev, tempMessage]);
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat/send", {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/chat/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          "Authorization": token ? `Bearer ${token}` : "",
         },
-        body: JSON.stringify({ to: friendId, message: optimisticMsg.message }),
+        body: JSON.stringify({
+          to: friendId,
+          message: messageText
+        }),
       });
 
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      const serverMsg = data.chat || data.message;
-      if (serverMsg) {
-        setMessages((prev) => prev.map((m) => (m._id === tempId ? serverMsg : m)));
+      if (!response.ok) {
+        throw new Error("Failed to send message");
       }
+
+      const data = await response.json();
+      const serverMessage = data.chat || data.message || data;
+
+      // Replace temporary message with server response
+      setMessages(prev => 
+        prev.map(msg => 
+          msg._id === tempMessage._id ? serverMessage : msg
+        )
+      );
+
     } catch (err) {
-      console.error(err);
-      setError("Failed to send message. Try again.");
-      setMessages((prev) => prev.filter((m) => m._id !== tempId));
+      console.error("Error sending message:", err);
+      setError("Failed to send message");
+      // Remove the temporary message on error
+      setMessages(prev => prev.filter(msg => msg._id !== tempMessage._id));
     }
   };
 
-  // Handle Enter key
-  const handleKeyDown = (e) => {
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
   };
 
-  // Decide if message is sent or received
-  const isSentByMe = (msg) => {
-    const fromId = getId(msg.from || msg.sender);
-    const toId = getId(msg.to || msg.receiver);
-    if (fromId === currentUserId) return true;
-    if (toId === friendId) return true;
-    return false; // else it's received
+  // Check if message was sent by current user
+  const isMessageFromMe = (message) => {
+    const fromId = getUserId(message.from || message.sender);
+    return fromId === currentUserId;
   };
 
-  const formatTime = (msg) => {
-    const t = msg.timestamp || msg.createdAt || Date.now();
+  // Format timestamp
+  const formatTimestamp = (timestamp) => {
     try {
-      return new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } catch {
       return "";
     }
   };
 
+  // Get friend display name
+  const getFriendDisplayName = () => {
+    if (!friend) return "Unknown";
+    return friend.username || friend.email || "Friend";
+  };
+
   return (
     <div 
-      onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
       style={{
-        background: "transparent",
-        maxWidth: 400,
-        width: "100%",
-        marginBottom: "2rem",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        borderRadius: 16,
-        height: isExpanded ? 420 : 'auto',
-        transition: "height 0.3s ease"
-      }}>
-      {/* Header */}
+        backgroundColor: 'transparent',
+        background: 'none',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '12px',
+        backdropFilter: 'blur(12px)',
+        maxWidth: '400px',
+        width: '100%',
+        marginBottom: '1.5rem',
+        overflow: 'hidden',
+        transition: 'height 0.3s ease',
+        height: isExpanded ? '450px' : '72px',
+        boxShadow: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative'
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Chat Header */}
       <div 
-        onClick={(e) => {
-          e.stopPropagation();  // Prevent event bubbling
-          onToggleExpand(!isExpanded);
-        }}
+        onClick={() => onToggleExpand(!isExpanded)}
         style={{
-          background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-          borderBottomLeftRadius: isExpanded ? 0 : 16,
-          borderBottomRightRadius: isExpanded ? 0 : 16,
-          padding: "1rem",
-          color: "#fff",
-          fontWeight: "bold",
-          fontSize: "1.15rem",
-          display: "flex",
-          alignItems: "center",
-          cursor: "pointer",
-          userSelect: "none"
+          padding: '1rem',
+          background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.8), rgba(41, 128, 185, 0.9))',
+          backdropFilter: 'blur(8px)',
+          border: 'none',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          borderBottomColor: isExpanded ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          userSelect: 'none',
+          height: '72px',
+          minHeight: '72px',
+          flexShrink: 0,
+          boxSizing: 'border-box'
         }}
       >
+        {/* Friend Avatar */}
         <div style={{
-          width: 40,
-          height: 40,
-          borderRadius: "50%",
-          background: "#fff",
-          color: "#3498db",
-          fontWeight: "bold",
-          fontSize: "1.2rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginRight: "0.8rem",
-          border: "2px solid #6dd5fa"
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.2rem',
+          fontWeight: '600',
+          color: 'white'
         }}>
-          {friend ? ((friend.username || friend.email || "?")[0]).toUpperCase() : "?"}
+          {getFriendDisplayName().charAt(0).toUpperCase()}
         </div>
+
+        {/* Friend Name */}
         <div style={{ flex: 1 }}>
-          {friend ? `Chat with ${friend.username || friend.email}` : "Select a friend to chat"}
+          <div style={{ 
+            fontSize: '1.1rem', 
+            fontWeight: '600', 
+            color: 'white',
+            marginBottom: '0.25rem'
+          }}>
+            {getFriendDisplayName()}
+          </div>
+          <div style={{ 
+            fontSize: '0.85rem', 
+            color: 'rgba(255, 255, 255, 0.8)',
+            opacity: 0.8
+          }}>
+            {isExpanded ? 'Click to close' : 'Click to open chat'}
+          </div>
         </div>
-        <button 
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "#fff",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-            padding: "0 0.5rem",
-            transition: "transform 0.3s ease"
-          }}
-        >
-          {isExpanded ? "−" : "+"}
-        </button>
+
+        {/* Expand/Collapse Button */}
+        <div style={{
+          fontSize: '1.5rem',
+          color: '#222',
+          transition: 'transform 0.3s ease',
+          transform: isExpanded ? 'rotate(45deg)' : 'rotate(0deg)'
+        }}>
+          +
+        </div>
       </div>
 
-      {/* Expandable Content */}
+      {/* Chat Content - Only show when expanded */}
       {isExpanded && (
-        <>
-          {/* Messages */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          {/* Messages Area */}
           <div style={{
             flex: 1,
-            overflowY: "auto",
-            padding: "1rem",
-            background: "#fff",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.07)"
+            overflowY: 'auto',
+            padding: '1rem',
+            backgroundColor: 'transparent',
+            background: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem'
           }}>
             {loading ? (
-              <div>Loading...</div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: '#666',
+                padding: '2rem'
+              }}>
+                Loading messages...
+              </div>
             ) : error ? (
-              <div style={{ color: "#c00" }}>{error}</div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: '#e74c3c',
+                padding: '2rem'
+              }}>
+                {error}
+              </div>
             ) : messages.length === 0 ? (
-              <div style={{ opacity: 0.7 }}>No messages yet. Say hello 👋</div>
-            ) : messages.map((msg, idx) => {
-              const isMe = isSentByMe(msg);
-              const key = msg._id || `msg-${idx}`;
-              return (
-                <div key={key} style={{ display: "flex", justifyContent: isMe ? "flex-end" : "flex-start", marginBottom: "0.5rem" }}>
-                  <div style={{
-                    background: isMe ? "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)" : "#fff",
-                    color: isMe ? "#fff" : "#000",
-                    borderRadius: 18,
-                    padding: "0.6rem 1rem",
-                    maxWidth: "70%",
-                    wordBreak: "break-word",
-                    fontSize: "1rem",
-                    boxShadow: isMe ? "0 2px 8px rgba(52,152,219,0.10)" : "none",
-                    marginLeft: isMe ? "auto" : 0,
-                    marginRight: isMe ? 0 : "auto",
-                    border: "none"
-                  }}>
-                    {msg.message}
-                    <div style={{ fontSize: "0.75rem", color: isMe ? "#e3f2fd" : "#555", marginTop: "0.3rem", textAlign: "right" }}>
-                      {formatTime(msg)}
+              <div style={{ 
+                textAlign: 'center', 
+                color: '#666',
+                padding: '2rem'
+              }}>
+                No messages yet. Start the conversation! 👋
+              </div>
+            ) : (
+              messages.map((message, index) => {
+                const isFromMe = isMessageFromMe(message);
+                return (
+                  <div
+                    key={message._id || index}
+                    style={{
+                      display: 'flex',
+                      justifyContent: isFromMe ? 'flex-end' : 'flex-start',
+                      marginBottom: '0.5rem'
+                    }}
+                  >
+                    <div style={{
+                      maxWidth: '75%',
+                      padding: '0.75rem 1rem',
+                      borderRadius: '18px',
+                      backgroundColor: isFromMe 
+                        ? 'rgba(52, 152, 219, 0.3)' 
+                        : 'rgba(255, 255, 255, 0.1)',
+                      border: isFromMe 
+                        ? '1px solid rgba(52, 152, 219, 0.4)' 
+                        : '1px solid rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(8px)',
+                      color: '#222',
+                      fontSize: '0.95rem',
+                      lineHeight: '1.4',
+                      wordBreak: 'break-word',
+                      opacity: message.isTemporary ? 0.7 : 1
+                    }}>
+                      <div>{message.message}</div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: '#666',
+                        marginTop: '0.25rem',
+                        textAlign: 'right'
+                      }}>
+                        {formatTimestamp(message.timestamp || message.createdAt)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div style={{ 
-            padding: "1rem", 
-            borderTop: "1px solid #eee", 
-            background: "#fff",
-            borderBottomLeftRadius: 16, 
-            borderBottomRightRadius: 16,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.07)"
+          {/* Message Input Area */}
+          <div style={{
+            padding: '1rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(12px)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+            flexShrink: 0
           }}>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
               <textarea
-                value={text}
-                onChange={e => setText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                style={{ flex: 1, padding: "0.7rem 1rem", borderRadius: 18, border: "1px solid #ccc", fontSize: "1rem", outline: "none", resize: "none" }}
-                disabled={!friend}
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
+                disabled={!friend}
+                rows={1}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem 1rem',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(8px)',
+                  color: '#222',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  resize: 'none',
+                  fontFamily: 'inherit'
+                }}
               />
-              <button onClick={sendMessage} disabled={!friend || !text.trim()} style={{
-                background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
-                color: "#fff",
-                border: "none",
-                borderRadius: 18,
-                fontWeight: "bold",
-                fontSize: "1rem",
-                padding: "0 1.2rem",
-                cursor: (!friend || !text.trim()) ? "not-allowed" : "pointer",
-                boxShadow: "0 2px 8px rgba(52,152,219,0.10)"
-              }}>Send</button>
+              <button
+                onClick={handleSendMessage}
+                disabled={!friend || !newMessage.trim()}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(52, 152, 219, 0.3)',
+                  backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                  backdropFilter: 'blur(8px)',
+                  color: '#222',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  cursor: (!friend || !newMessage.trim()) ? 'not-allowed' : 'pointer',
+                  opacity: (!friend || !newMessage.trim()) ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Send
+              </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

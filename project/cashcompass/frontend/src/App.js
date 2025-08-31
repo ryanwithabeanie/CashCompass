@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import AddEntryForm from './AddEntryForm';
 import { fetchEntries } from './services/entryService';
 import bgImage from './assets/bg.jpg';
@@ -286,41 +286,45 @@ function App() {
   };
 
   // -------------------- Derived/UI data --------------------
-  const pieData = summary?.currentWeek ? {
-    labels: ['Income', 'Expense', 'Savings'],
-    datasets: [{
-      data: [
-        summary.currentWeek.income,
-        summary.currentWeek.expense,
-        summary.currentWeek.savings
-      ],
-      backgroundColor: ['#3498db', '#e74c3c', '#2ecc71']
-    }]
-  } : null;
+  const pieData = useMemo(() => {
+    return summary?.currentWeek ? {
+      labels: ['Income', 'Expense', 'Savings'],
+      datasets: [{
+        data: [
+          summary.currentWeek.income,
+          summary.currentWeek.expense,
+          summary.currentWeek.savings
+        ],
+        backgroundColor: ['#3498db', '#e74c3c', '#2ecc71']
+      }]
+    } : null;
+  }, [summary?.currentWeek]);
 
-  const lineData = (summary?.currentWeek && summary?.previousWeek) ? {
-    labels: ['Last Week', 'This Week'],
-    datasets: [
-      {
-        label: 'Income',
-        data: [summary.previousWeek.income, summary.currentWeek.income],
-        borderColor: '#3498db',
-        fill: false
-      },
-      {
-        label: 'Expense',
-        data: [summary.previousWeek.expense, summary.currentWeek.expense],
-        borderColor: '#e74c3c',
-        fill: false
-      },
-      {
-        label: 'Savings',
-        data: [summary.previousWeek.savings, summary.currentWeek.savings],
-        borderColor: '#2ecc71',
-        fill: false
-      }
-    ]
-  } : null;
+  const lineData = useMemo(() => {
+    return (summary?.currentWeek && summary?.previousWeek) ? {
+      labels: ['Last Week', 'This Week'],
+      datasets: [
+        {
+          label: 'Income',
+          data: [summary.previousWeek.income, summary.currentWeek.income],
+          borderColor: '#3498db',
+          fill: false
+        },
+        {
+          label: 'Expense',
+          data: [summary.previousWeek.expense, summary.currentWeek.expense],
+          borderColor: '#e74c3c',
+          fill: false
+        },
+        {
+          label: 'Savings',
+          data: [summary.previousWeek.savings, summary.currentWeek.savings],
+          borderColor: '#2ecc71',
+          fill: false
+        }
+      ]
+    } : null;
+  }, [summary?.currentWeek, summary?.previousWeek]);
 
   // -------------------- Early return for login (AFTER hooks) --------------------
   if (authChecking) {
