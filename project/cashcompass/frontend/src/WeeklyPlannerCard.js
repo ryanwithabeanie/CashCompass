@@ -144,11 +144,13 @@ export default function WeeklyPlannerCard() {
     if (totalDifference > 0) {
       return (
         <div className="saving-message" style={{
-          color: '#2ecc71',
+          color: '#1e8449',
           fontSize: '1.2rem',
           textAlign: 'center',
           padding: '1rem',
-          background: '#e8f8f5',
+          background: 'rgba(46, 204, 113, 0.15)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(46, 204, 113, 0.3)',
           borderRadius: '12px',
           marginTop: '1rem'
         }}>
@@ -166,7 +168,9 @@ export default function WeeklyPlannerCard() {
           fontSize: '1.2rem',
           textAlign: 'center',
           padding: '1rem',
-          background: '#fdf2f1',
+          background: 'rgba(231, 76, 60, 0.15)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(231, 76, 60, 0.3)',
           borderRadius: '12px',
           marginTop: '1rem'
         }}>
@@ -210,14 +214,16 @@ export default function WeeklyPlannerCard() {
           padding: '1rem',
           textAlign: 'center',
           color: '#e74c3c',
-          background: '#fdf2f1',
+          background: 'rgba(231, 76, 60, 0.15)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(231, 76, 60, 0.3)',
           borderRadius: '8px',
           marginBottom: '1rem'
         }}>
           {error}
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div>
         <table style={{
           width: '100%',
           borderCollapse: 'collapse',
@@ -225,7 +231,7 @@ export default function WeeklyPlannerCard() {
         }}>
           <thead>
             <tr style={{
-              background: 'linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)',
+              background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
               color: '#fff'
             }}>
               <th style={{ 
@@ -308,7 +314,7 @@ export default function WeeklyPlannerCard() {
                 <td style={{
                   padding: '1rem',
                   textAlign: 'center',
-                  color: item.difference > 0 ? '#2ecc71' : item.difference < 0 ? '#e74c3c' : '#666'
+                  color: item.difference > 0 ? '#1e8449' : item.difference < 0 ? '#e74c3c' : '#666'
                 }}>
                   {item.difference > 0 ? '+' : ''}{item.difference}
                 </td>
@@ -351,7 +357,7 @@ export default function WeeklyPlannerCard() {
           <button
             onClick={handleSaveChanges}
             style={{
-            backgroundColor: '#3498db',
+            background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
             color: '#fff',
             border: 'none',
             padding: '0.8rem 1.5rem',
@@ -367,7 +373,7 @@ export default function WeeklyPlannerCard() {
         </button>
         {saveStatus && (
           <span style={{
-            color: saveStatus.includes('success') ? '#2ecc71' : saveStatus.includes('Failed') ? '#e74c3c' : '#3498db',
+            color: saveStatus.includes('success') ? '#1e8449' : saveStatus.includes('Failed') ? '#e74c3c' : '#3498db',
             fontWeight: 'bold'
           }}>
             {saveStatus}

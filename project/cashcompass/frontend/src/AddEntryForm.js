@@ -229,7 +229,7 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
           type="submit" 
           style={{
             padding: '0.75rem',
-            backgroundColor: '#007bff',
+            background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
             color: '#fff',
             border: 'none',
             borderRadius: '6px',
@@ -244,7 +244,7 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
       {message && (
         <p style={{
           marginTop: '1rem',
-          color: message.includes('Error') ? 'red' : 'green'
+          color: message.includes('Error') ? 'red' : '#1e8449'
         }}>
           {message}
         </p>

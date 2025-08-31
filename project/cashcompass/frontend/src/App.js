@@ -478,8 +478,10 @@ function App() {
             onClick={generateNewSummary}
             disabled={summaryLoading || isGeneratingSummary}
             style={{
-              backgroundColor: "rgba(52, 152, 219, 0.1)",
-              color: "#222",
+              background: (summaryLoading || isGeneratingSummary) 
+                ? "rgba(52, 152, 219, 0.1)" 
+                : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
+              color: (summaryLoading || isGeneratingSummary) ? "#222" : "#fff",
               border: "1px solid rgba(52, 152, 219, 0.2)",
               padding: "0.7rem 1.5rem",
               borderRadius: "12px",
@@ -826,7 +828,7 @@ function App() {
                           onClick={() => startEditing(entry)}
                           style={{
                             marginRight: '0.5rem',
-                            backgroundColor: '#3498db',
+                            background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
                             color: 'white',
                             border: 'none',
                             padding: '0.4rem 0.8rem',

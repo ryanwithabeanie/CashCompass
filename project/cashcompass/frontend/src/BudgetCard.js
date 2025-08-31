@@ -125,7 +125,7 @@ export default function BudgetCard({ user }) {
           type="submit"
           style={{
             padding: '0.5rem 1.5rem',
-            background: '#3498db',
+            background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
             color: '#fff',
             border: 'none',
             borderRadius: '6px',

@@ -175,7 +175,7 @@ export default function ChatCard({ user, friend, isExpanded, onToggleExpand }) {
         onClick={() => onToggleExpand(!isExpanded)}
         style={{
           padding: '1rem',
-          background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.8), rgba(41, 128, 185, 0.9))',
+          background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
           backdropFilter: 'blur(8px)',
           border: 'none',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -364,9 +364,11 @@ export default function ChatCard({ user, friend, isExpanded, onToggleExpand }) {
                   padding: '0.75rem 1.25rem',
                   borderRadius: '20px',
                   border: '1px solid rgba(52, 152, 219, 0.3)',
-                  backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                  background: (!friend || !newMessage.trim()) 
+                    ? 'rgba(52, 152, 219, 0.2)' 
+                    : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
                   backdropFilter: 'blur(8px)',
-                  color: '#222',
+                  color: (!friend || !newMessage.trim()) ? '#222' : '#fff',
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   cursor: (!friend || !newMessage.trim()) ? 'not-allowed' : 'pointer',

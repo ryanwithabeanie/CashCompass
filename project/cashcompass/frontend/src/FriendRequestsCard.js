@@ -105,7 +105,7 @@ function FriendRequestsCard({ user }) {
         <button
           onClick={sendRequest}
           style={{
-            backgroundColor: "#3498db",
+            background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
             color: "#fff",
             border: "none",
             padding: "0.4rem 0.7rem",
@@ -120,7 +120,7 @@ function FriendRequestsCard({ user }) {
           Send
         </button>
       </div>
-      {msg && <div style={{ color: msg.includes("!") ? "green" : "red", marginBottom: "1rem" }}>{msg}</div>}
+      {msg && <div style={{ color: msg.includes("!") ? "#1e8449" : "red", marginBottom: "1rem" }}>{msg}</div>}
       <div style={{ marginBottom: "1rem" }}>
         <strong>Sent Requests:</strong>
         <ul style={{ margin: 0, listStyle: "none", padding: 0 }}>

@@ -144,7 +144,7 @@ export default function Login({ onLoggedIn }) {
             style={{
               width: "100%",
               padding: 12,
-              background: "#3498db",
+              background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
               color: "#fff",
               border: "none",
               borderRadius: 8,
@@ -161,7 +161,7 @@ export default function Login({ onLoggedIn }) {
         {msg && (
           <p
             style={{
-              color: msg.startsWith("✅") ? "green" : "#b00",
+              color: msg.startsWith("✅") ? "#1e8449" : "#b00",
               marginTop: 12,
             }}
           >
