@@ -260,7 +260,7 @@ export default function WeeklyPlannerCard() {
           <tbody>
             {plannerData.map((item, index) => (
               <tr key={item.id} style={{
-                backgroundColor: index % 2 === 0 ? '#f8fafd' : '#fff',
+                backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                 transition: 'background-color 0.2s'
               }}>
                 <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
@@ -276,9 +276,13 @@ export default function WeeklyPlannerCard() {
                     style={{
                       width: '100px',
                       padding: '0.5rem',
-                      border: '1px solid #ddd',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       borderRadius: '8px',
-                      textAlign: 'right'
+                      textAlign: 'right',
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                      backdropFilter: 'blur(12px)',
+                      color: '#222',
+                      outline: 'none'
                     }}
                   />
                 </td>
@@ -291,9 +295,13 @@ export default function WeeklyPlannerCard() {
                     style={{
                       width: '100px',
                       padding: '0.5rem',
-                      border: '1px solid #ddd',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       borderRadius: '8px',
-                      textAlign: 'right'
+                      textAlign: 'right',
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                      backdropFilter: 'blur(12px)',
+                      color: '#222',
+                      outline: 'none'
                     }}
                   />
                 </td>
@@ -313,8 +321,12 @@ export default function WeeklyPlannerCard() {
                     style={{
                       width: '100%',
                       padding: '0.5rem',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px'
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '8px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                      backdropFilter: 'blur(12px)',
+                      color: '#222',
+                      outline: 'none'
                     }}
                   />
                 </td>

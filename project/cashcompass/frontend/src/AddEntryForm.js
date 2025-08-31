@@ -85,7 +85,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             name="type" 
             value={entry.type} 
             onChange={handleChange} 
-            style={{ flex: 1 }}
+            style={{ 
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
+            }}
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -101,7 +110,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             value={entry.category} 
             onChange={handleChange} 
             required 
-            style={{ flex: 1 }} 
+            style={{ 
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
+            }} 
           />
         </div>
 
@@ -114,7 +132,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             value={entry.amount} 
             onChange={handleChange} 
             required 
-            style={{ flex: 1 }} 
+            style={{ 
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
+            }} 
           />
         </div>
 
@@ -126,7 +153,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             name="note" 
             value={entry.note} 
             onChange={handleChange} 
-            style={{ flex: 1 }} 
+            style={{ 
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
+            }} 
           />
         </div>
 
@@ -139,7 +175,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
             value={entry.date} 
             onChange={handleChange} 
             required 
-            style={{ flex: 1 }} 
+            style={{ 
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
+            }} 
           />
         </div>
 
@@ -162,7 +207,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
               name="recurringPeriod"
               value={entry.recurringPeriod}
               onChange={handleChange}
-              style={{ flex: 1 }}
+              style={{ 
+                flex: 1,
+                padding: '0.5rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(12px)',
+                color: '#222',
+                outline: 'none'
+              }}
             >
               <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>

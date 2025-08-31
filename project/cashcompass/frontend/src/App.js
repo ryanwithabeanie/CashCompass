@@ -705,7 +705,16 @@ function App() {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              style={{ marginLeft: '0.9rem' }}
+              style={{ 
+                marginLeft: '0.9rem',
+                padding: '0.5rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(12px)',
+                color: '#222',
+                outline: 'none'
+              }}
             >
               <option value="all">All</option>
               <option value="income">Income</option>
@@ -723,7 +732,11 @@ function App() {
               padding: "0.5rem",
               marginBottom: "1rem",
               borderRadius: "8px",
-              border: "1px solid #ccc"
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
             }}
           />
 
@@ -747,9 +760,10 @@ function App() {
                     alignItems: 'center',
                     marginBottom: '1rem',
                     padding: '1rem',
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    backgroundColor: '#f9f9f9'
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(12px)'
                   }}
                 >
                   {editingEntry === entry._id ? (

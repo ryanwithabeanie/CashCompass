@@ -112,8 +112,12 @@ export default function BudgetCard({ user }) {
             style={{
               width: 120,
               padding: '0.5rem',
-              borderRadius: '4px',
-              border: '1px solid #ddd'
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(12px)',
+              color: '#222',
+              outline: 'none'
             }}
           />
         </div>

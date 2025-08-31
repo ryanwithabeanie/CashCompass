@@ -91,7 +91,16 @@ function FriendRequestsCard({ user }) {
           placeholder="Send request to email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid #ccc" }}
+          style={{ 
+            width: "100%", 
+            padding: "0.5rem", 
+            borderRadius: "8px", 
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(12px)',
+            color: '#222',
+            outline: 'none'
+          }}
         />
         <button
           onClick={sendRequest}
