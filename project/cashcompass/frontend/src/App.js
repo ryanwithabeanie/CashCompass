@@ -10,6 +10,7 @@ import { Chart, ArcElement, CategoryScale, LinearScale, PointElement, LineElemen
 import FriendRequestsCard from './FriendRequestsCard';
 import ChatCard from './ChatCard';
 import BudgetCard from './BudgetCard';
+import WeeklyPlannerCard from './WeeklyPlannerCard';
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -21,6 +22,7 @@ function App() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState('');
   const [editingEntry, setEditingEntry] = useState(null);
+  const [expandedChatId, setExpandedChatId] = useState(null);
   const [authChecking, setAuthChecking] = useState(true);
   const [editForm, setEditForm] = useState({
     type: '',
@@ -71,6 +73,11 @@ function App() {
 
     checkAuth();
   }, []);
+
+  // Reset expanded chat when user changes
+  useEffect(() => {
+    setExpandedChatId(null);
+  }, [user]);
 
   // Load initial data and friends when user is validated
   useEffect(() => {
@@ -505,6 +512,11 @@ function App() {
         <BudgetCard user={user} />
       </div>
 
+      {/* Weekly Planner Card */}
+      <div style={{ width: '100%', marginBottom: '2rem' }}>
+        <WeeklyPlannerCard />
+      </div>
+
       {/* Main Content */}
       <div style={{
         display: 'flex',
@@ -699,7 +711,13 @@ function App() {
           <h2>Friends</h2>
           <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
             {friends.map(friend => (
-              <ChatCard key={friend._id} user={user} friend={friend} />
+              <ChatCard 
+                key={friend._id} 
+                user={user} 
+                friend={friend}
+                isExpanded={friend._id === expandedChatId}
+                onToggleExpand={(expanded) => setExpandedChatId(expanded ? friend._id : null)}
+              />
             ))}
           </div>
         </div>

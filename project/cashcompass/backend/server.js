@@ -28,6 +28,9 @@ app.use('/api/chat', chatRoutes);
 const budgetRoutes = require('./routes/budget');
 app.use('/api/budget', budgetRoutes);
 
+const weeklyPlanRoutes = require('./routes/weeklyPlan');
+app.use('/api/weeklyPlan', weeklyPlanRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;

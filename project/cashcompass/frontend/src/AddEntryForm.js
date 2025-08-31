@@ -46,6 +46,11 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
 
       if (res.ok) {
         setMessage("Entry added successfully!");
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setMessage('');
+        }, 3000);
+        
         setEntry({
           type: "expense",
           category: "",

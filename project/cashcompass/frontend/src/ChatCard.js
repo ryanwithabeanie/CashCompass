@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function ChatCard({ user, friend }) {
+export default function ChatCard({ user, friend, isExpanded, onToggleExpand }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Normalize id: string, object {_id}, number
@@ -18,6 +17,13 @@ export default function ChatCard({ user, friend }) {
 
   const currentUserId = getId(user?._id || user?.id || user);
   const friendId = getId(friend?._id || friend?.id || friend);
+
+  // Clear messages when collapsed
+  useEffect(() => {
+    if (!isExpanded) {
+      setMessages([]);
+    }
+  }, [isExpanded]);
 
   // Fetch chat history
   useEffect(() => {
@@ -122,23 +128,26 @@ export default function ChatCard({ user, friend }) {
   };
 
   return (
-    <div style={{
-      background: "#fff",
-      border: "1px solid #ddd",
-      borderRadius: 16,
-      boxShadow: "0 4px 12px rgba(0,0,0,0.07)",
-      padding: 0,
-      maxWidth: 400,
-      width: "100%",
-      marginBottom: "2rem",
-      display: "flex",
-      flexDirection: "column",
-      height: isExpanded ? 420 : 'auto',
-      transition: "height 0.3s ease"
-    }}>
+    <div 
+      onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
+      style={{
+        background: "transparent",
+        maxWidth: 400,
+        width: "100%",
+        marginBottom: "2rem",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        borderRadius: 16,
+        height: isExpanded ? 420 : 'auto',
+        transition: "height 0.3s ease"
+      }}>
       {/* Header */}
       <div 
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={(e) => {
+          e.stopPropagation();  // Prevent event bubbling
+          onToggleExpand(!isExpanded);
+        }}
         style={{
           background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
           borderTopLeftRadius: 16,
@@ -197,9 +206,10 @@ export default function ChatCard({ user, friend }) {
             flex: 1,
             overflowY: "auto",
             padding: "1rem",
-            background: "#f6f8fa",
+            background: "#fff",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.07)"
           }}>
             {loading ? (
               <div>Loading...</div>
@@ -237,7 +247,14 @@ export default function ChatCard({ user, friend }) {
           </div>
 
           {/* Input */}
-          <div style={{ padding: "1rem", borderTop: "1px solid #eee", background: "#fafcff", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
+          <div style={{ 
+            padding: "1rem", 
+            borderTop: "1px solid #eee", 
+            background: "#fff",
+            borderBottomLeftRadius: 16, 
+            borderBottomRightRadius: 16,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.07)"
+          }}>
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <textarea
                 value={text}
