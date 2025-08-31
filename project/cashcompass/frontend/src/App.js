@@ -55,6 +55,10 @@ function App() {
           setUser(null);
         } else {
           setUser({});
+          // Clear any previous user's summary data
+          setSummary(null);
+          localStorage.removeItem("lastSummary");
+          localStorage.removeItem("lastSummaryTime");
         }
       } catch (err) {
         console.error('Auth check error:', err);
@@ -123,6 +127,13 @@ function App() {
     try {
       const summaryData = await fetchSummary();
       if (summaryData) {
+        // Check if the API returned an error about daily limit
+        if (summaryData.error && summaryData.error.toLowerCase().includes('daily limit')) {
+          setSummaryError('OpenRouter API daily limit reached. Please try again tomorrow.');
+          setSummary(null);
+          return;
+        }
+        
         setSummary(summaryData);
         localStorage.setItem("lastSummary", JSON.stringify(summaryData));
         localStorage.setItem("lastSummaryTime", Date.now().toString());
@@ -132,8 +143,6 @@ function App() {
       setSummaryError(err.message === 'Summary request timed out' 
         ? 'Request timed out. Please try again.'
         : 'Failed to generate summary. Backend might be disconnected.');
-      
-      // Don't fall back to cache on manual generation - user explicitly requested new data
     } finally {
       setSummaryLoading(false);
       setIsGeneratingSummary(false);
@@ -571,6 +580,8 @@ function App() {
 
           <ul style={{ listStyle: 'none', padding: 0 }}>
             {entries
+              .slice() // Create a copy to avoid mutating original array
+              .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date, newest first
               .filter(entry =>
                 (filter === 'all' || entry.type === filter) &&
                 (

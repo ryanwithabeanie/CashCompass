@@ -138,35 +138,31 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
           />
         </div>
 
-        {/* Recurring Options (only show for expenses) */}
-        {entry.type === 'expense' && (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <label style={{ width: '80px' }}>Recurring:</label>
-              <input
-                type="checkbox"
-                name="isRecurring"
-                checked={entry.isRecurring}
-                onChange={(e) => setEntry({ ...entry, isRecurring: e.target.checked })}
-                style={{ margin: '0' }}
-              />
-            </div>
+        {/* Recurring Options */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <label style={{ width: '80px' }}>Recurring:</label>
+          <input
+            type="checkbox"
+            name="isRecurring"
+            checked={entry.isRecurring}
+            onChange={(e) => setEntry({ ...entry, isRecurring: e.target.checked })}
+            style={{ margin: '0' }}
+          />
+        </div>
 
-            {entry.isRecurring && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <label style={{ width: '80px' }}>Period:</label>
-                <select
-                  name="recurringPeriod"
-                  value={entry.recurringPeriod}
-                  onChange={handleChange}
-                  style={{ flex: 1 }}
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </div>
-            )}
-          </>
+        {entry.isRecurring && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <label style={{ width: '80px' }}>Period:</label>
+            <select
+              name="recurringPeriod"
+              value={entry.recurringPeriod}
+              onChange={handleChange}
+              style={{ flex: 1 }}
+            >
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
         )}
 
         {/* Submit */}

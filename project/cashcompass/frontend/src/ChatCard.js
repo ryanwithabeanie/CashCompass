@@ -5,6 +5,7 @@ export default function ChatCard({ user, friend }) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Normalize id: string, object {_id}, number
@@ -20,7 +21,7 @@ export default function ChatCard({ user, friend }) {
 
   // Fetch chat history
   useEffect(() => {
-    if (!friend) return;
+    if (!friend || !isExpanded) return;
     const abort = new AbortController();
     const token = localStorage.getItem("token");
     setLoading(true);
@@ -46,7 +47,7 @@ export default function ChatCard({ user, friend }) {
       .finally(() => setLoading(false));
 
     return () => abort.abort();
-  }, [friendId]);
+  }, [friendId, isExpanded, friend]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -132,20 +133,28 @@ export default function ChatCard({ user, friend }) {
       marginBottom: "2rem",
       display: "flex",
       flexDirection: "column",
-      height: 420
+      height: isExpanded ? 420 : 'auto',
+      transition: "height 0.3s ease"
     }}>
       {/* Header */}
-      <div style={{
-        background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        padding: "1rem",
-        color: "#fff",
-        fontWeight: "bold",
-        fontSize: "1.15rem",
-        display: "flex",
-        alignItems: "center"
-      }}>
+      <div 
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{
+          background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          borderBottomLeftRadius: isExpanded ? 0 : 16,
+          borderBottomRightRadius: isExpanded ? 0 : 16,
+          padding: "1rem",
+          color: "#fff",
+          fontWeight: "bold",
+          fontSize: "1.15rem",
+          display: "flex",
+          alignItems: "center",
+          cursor: "pointer",
+          userSelect: "none"
+        }}
+      >
         <div style={{
           width: 40,
           height: 40,
@@ -162,77 +171,98 @@ export default function ChatCard({ user, friend }) {
         }}>
           {friend ? ((friend.username || friend.email || "?")[0]).toUpperCase() : "?"}
         </div>
-        <span>{friend ? `Chat with ${friend.username || friend.email}` : "Select a friend to chat"}</span>
-      </div>
-
-      {/* Messages */}
-      <div style={{
-        flex: 1,
-        overflowY: "auto",
-        padding: "1rem",
-        background: "#f6f8fa",
-        display: "flex",
-        flexDirection: "column"
-      }}>
-        {loading ? (
-          <div>Loading...</div>
-        ) : error ? (
-          <div style={{ color: "#c00" }}>{error}</div>
-        ) : messages.length === 0 ? (
-          <div style={{ opacity: 0.7 }}>No messages yet. Say hello 👋</div>
-        ) : messages.map((msg, idx) => {
-          const isMe = isSentByMe(msg);
-          const key = msg._id || `msg-${idx}`;
-          return (
-            <div key={key} style={{ display: "flex", justifyContent: isMe ? "flex-end" : "flex-start", marginBottom: "0.5rem" }}>
-              <div style={{
-                background: isMe ? "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)" : "#fff",
-                color: isMe ? "#fff" : "#000",
-                borderRadius: 18,
-                padding: "0.6rem 1rem",
-                maxWidth: "70%",
-                wordBreak: "break-word",
-                fontSize: "1rem",
-                boxShadow: isMe ? "0 2px 8px rgba(52,152,219,0.10)" : "none",
-                marginLeft: isMe ? "auto" : 0,
-                marginRight: isMe ? 0 : "auto",
-                border: "none"
-              }}>
-                {msg.message}
-                <div style={{ fontSize: "0.75rem", color: isMe ? "#e3f2fd" : "#555", marginTop: "0.3rem", textAlign: "right" }}>
-                  {formatTime(msg)}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div style={{ padding: "1rem", borderTop: "1px solid #eee", background: "#fafcff", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <textarea
-            value={text}
-            onChange={e => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            rows={1}
-            style={{ flex: 1, padding: "0.7rem 1rem", borderRadius: 18, border: "1px solid #ccc", fontSize: "1rem", outline: "none", resize: "none" }}
-            disabled={!friend}
-          />
-          <button onClick={sendMessage} disabled={!friend || !text.trim()} style={{
-            background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
-            color: "#fff",
-            border: "none",
-            borderRadius: 18,
-            fontWeight: "bold",
-            fontSize: "1rem",
-            padding: "0 1.2rem",
-            cursor: (!friend || !text.trim()) ? "not-allowed" : "pointer",
-            boxShadow: "0 2px 8px rgba(52,152,219,0.10)"
-          }}>Send</button>
+        <div style={{ flex: 1 }}>
+          {friend ? `Chat with ${friend.username || friend.email}` : "Select a friend to chat"}
         </div>
+        <button 
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "#fff",
+            fontSize: "1.5rem",
+            cursor: "pointer",
+            padding: "0 0.5rem",
+            transition: "transform 0.3s ease"
+          }}
+        >
+          {isExpanded ? "−" : "+"}
+        </button>
       </div>
+
+      {/* Expandable Content */}
+      {isExpanded && (
+        <>
+          {/* Messages */}
+          <div style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "1rem",
+            background: "#f6f8fa",
+            display: "flex",
+            flexDirection: "column"
+          }}>
+            {loading ? (
+              <div>Loading...</div>
+            ) : error ? (
+              <div style={{ color: "#c00" }}>{error}</div>
+            ) : messages.length === 0 ? (
+              <div style={{ opacity: 0.7 }}>No messages yet. Say hello 👋</div>
+            ) : messages.map((msg, idx) => {
+              const isMe = isSentByMe(msg);
+              const key = msg._id || `msg-${idx}`;
+              return (
+                <div key={key} style={{ display: "flex", justifyContent: isMe ? "flex-end" : "flex-start", marginBottom: "0.5rem" }}>
+                  <div style={{
+                    background: isMe ? "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)" : "#fff",
+                    color: isMe ? "#fff" : "#000",
+                    borderRadius: 18,
+                    padding: "0.6rem 1rem",
+                    maxWidth: "70%",
+                    wordBreak: "break-word",
+                    fontSize: "1rem",
+                    boxShadow: isMe ? "0 2px 8px rgba(52,152,219,0.10)" : "none",
+                    marginLeft: isMe ? "auto" : 0,
+                    marginRight: isMe ? 0 : "auto",
+                    border: "none"
+                  }}>
+                    {msg.message}
+                    <div style={{ fontSize: "0.75rem", color: isMe ? "#e3f2fd" : "#555", marginTop: "0.3rem", textAlign: "right" }}>
+                      {formatTime(msg)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div style={{ padding: "1rem", borderTop: "1px solid #eee", background: "#fafcff", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <textarea
+                value={text}
+                onChange={e => setText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                style={{ flex: 1, padding: "0.7rem 1rem", borderRadius: 18, border: "1px solid #ccc", fontSize: "1rem", outline: "none", resize: "none" }}
+                disabled={!friend}
+                placeholder="Type your message..."
+              />
+              <button onClick={sendMessage} disabled={!friend || !text.trim()} style={{
+                background: "linear-gradient(90deg, #3498db 0%, #6dd5fa 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 18,
+                fontWeight: "bold",
+                fontSize: "1rem",
+                padding: "0 1.2rem",
+                cursor: (!friend || !text.trim()) ? "not-allowed" : "pointer",
+                boxShadow: "0 2px 8px rgba(52,152,219,0.10)"
+              }}>Send</button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
