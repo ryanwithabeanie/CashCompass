@@ -35,8 +35,8 @@ function App() {
   const [search, setSearch] = useState('');
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState(null);
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [dashboardCollapsed, setDashboardCollapsed] = useState(true);
+  const [currentPage, setCurrentPage] = useState('home');
+  const [dashboardCollapsed, setDashboardCollapsed] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
@@ -565,9 +565,9 @@ function App() {
       setFriends([]);
       setSummary(null);
       
-      // Reset to dashboard page for new login
-      setCurrentPage('dashboard');
-      setDashboardCollapsed(true); // Start with collapsed dashboard
+      // Reset to home page for new login (this will show dashboard content)
+      setCurrentPage('home');
+      setDashboardCollapsed(false); // Start with expanded dashboard to show full home page
       
       // Set the new user, which will trigger the useEffect to load their data
       setUser(userData);
@@ -760,16 +760,30 @@ function App() {
           <button
             onClick={() => setDashboardCollapsed(!dashboardCollapsed)}
             style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              borderRadius: '6px',
+              background: 'rgba(255, 255, 255, 0.25)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              borderRadius: '10px',
               color: '#222',
               cursor: 'pointer',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              backdropFilter: 'blur(8px)',
+              padding: '0.6rem',
+              fontSize: '1.1rem',
+              backdropFilter: 'blur(12px)',
               userSelect: 'none',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              boxShadow: '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
+              textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.4), 0 6px 12px rgba(0,0,0,0.25)';
+              e.target.style.transform = 'scale(1.15) translateY(-2px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.2)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.7)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
             }}
             title={dashboardCollapsed ? "Expand Dashboard" : "Collapse Dashboard"}
           >
@@ -787,80 +801,190 @@ function App() {
             <button 
               onClick={() => navigateToPage('home')}
               style={{
-              padding: '0.75rem 1.5rem',
-              backgroundColor: currentPage === 'home' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-              border: currentPage === 'home' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
+              padding: '0.85rem 1.8rem',
+              backgroundColor: currentPage === 'home' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+              border: currentPage === 'home' ? '2px solid rgba(52, 152, 219, 0.8)' : '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '12px',
               color: currentPage === 'home' ? '#222' : '#fff',
               cursor: 'pointer',
-              fontSize: '0.9rem',
+              fontSize: '0.95rem',
               fontWeight: 'bold',
-              backdropFilter: 'blur(8px)',
-              userSelect: 'none'
+              backdropFilter: 'blur(12px)',
+              userSelect: 'none',
+              boxShadow: currentPage === 'home' 
+                ? '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)' 
+                : '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transform: currentPage === 'home' ? 'scale(1.1) translateY(-3px)' : 'scale(1) translateY(0px)',
+              textShadow: currentPage === 'home' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'
+            }}
+            onMouseEnter={(e) => {
+              if (currentPage !== 'home') {
+                e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3), 0 6px 12px rgba(0,0,0,0.25)';
+                e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.18)';
+                e.target.style.borderColor = 'rgba(52, 152, 219, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (currentPage !== 'home') {
+                e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+                e.target.style.transform = 'scale(1) translateY(0px)';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              }
             }}>
               Home
             </button>
           <button 
             onClick={() => navigateToPage('friends')}
             style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'friends' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'friends' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
+            padding: '0.85rem 1.8rem',
+            backgroundColor: currentPage === 'friends' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+            border: currentPage === 'friends' ? '2px solid rgba(52, 152, 219, 0.8)' : '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '12px',
             color: currentPage === 'friends' ? '#222' : '#fff',
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.95rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)',
-            userSelect: 'none'
+            backdropFilter: 'blur(12px)',
+            userSelect: 'none',
+            boxShadow: currentPage === 'friends' 
+              ? '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)' 
+              : '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            transform: currentPage === 'friends' ? 'scale(1.1) translateY(-3px)' : 'scale(1) translateY(0px)',
+            textShadow: currentPage === 'friends' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage !== 'friends') {
+              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3), 0 6px 12px rgba(0,0,0,0.25)';
+              e.target.style.transform = 'scale(1.05) translateY(-2px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.18)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.6)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== 'friends') {
+              e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }
           }}>
             Friends
           </button>
           <button 
             onClick={() => navigateToPage('budget')}
             style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'budget' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'budget' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
+            padding: '0.85rem 1.8rem',
+            backgroundColor: currentPage === 'budget' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+            border: currentPage === 'budget' ? '2px solid rgba(52, 152, 219, 0.8)' : '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '12px',
             color: currentPage === 'budget' ? '#222' : '#fff',
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.95rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)',
-            userSelect: 'none'
+            backdropFilter: 'blur(12px)',
+            userSelect: 'none',
+            boxShadow: currentPage === 'budget' 
+              ? '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)' 
+              : '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            transform: currentPage === 'budget' ? 'scale(1.1) translateY(-3px)' : 'scale(1) translateY(0px)',
+            textShadow: currentPage === 'budget' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage !== 'budget') {
+              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3), 0 6px 12px rgba(0,0,0,0.25)';
+              e.target.style.transform = 'scale(1.05) translateY(-2px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.18)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.6)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== 'budget') {
+              e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }
           }}>
             Budget
           </button>
           <button 
             onClick={() => navigateToPage('dynamics')}
             style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'dynamics' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'dynamics' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
+            padding: '0.85rem 1.8rem',
+            backgroundColor: currentPage === 'dynamics' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+            border: currentPage === 'dynamics' ? '2px solid rgba(52, 152, 219, 0.8)' : '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '12px',
             color: currentPage === 'dynamics' ? '#222' : '#fff',
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.95rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)',
-            userSelect: 'none'
+            backdropFilter: 'blur(12px)',
+            userSelect: 'none',
+            boxShadow: currentPage === 'dynamics' 
+              ? '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)' 
+              : '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            transform: currentPage === 'dynamics' ? 'scale(1.1) translateY(-3px)' : 'scale(1) translateY(0px)',
+            textShadow: currentPage === 'dynamics' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage !== 'dynamics') {
+              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3), 0 6px 12px rgba(0,0,0,0.25)';
+              e.target.style.transform = 'scale(1.05) translateY(-2px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.18)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.6)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== 'dynamics') {
+              e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }
           }}>
             Dynamics
           </button>
           <button 
             onClick={() => navigateToPage('planner')}
             style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'planner' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'planner' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
+            padding: '0.85rem 1.8rem',
+            backgroundColor: currentPage === 'planner' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+            border: currentPage === 'planner' ? '2px solid rgba(52, 152, 219, 0.8)' : '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '12px',
             color: currentPage === 'planner' ? '#222' : '#fff',
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.95rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)',
-            userSelect: 'none'
+            backdropFilter: 'blur(12px)',
+            userSelect: 'none',
+            boxShadow: currentPage === 'planner' 
+              ? '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)' 
+              : '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            transform: currentPage === 'planner' ? 'scale(1.1) translateY(-3px)' : 'scale(1) translateY(0px)',
+            textShadow: currentPage === 'planner' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage !== 'planner') {
+              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3), 0 6px 12px rgba(0,0,0,0.25)';
+              e.target.style.transform = 'scale(1.05) translateY(-2px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.18)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.6)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== 'planner') {
+              e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }
           }}>
             Planner
           </button>
