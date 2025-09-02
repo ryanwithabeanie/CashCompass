@@ -88,7 +88,7 @@ export default function BudgetCard({ user }) {
       backdropFilter: 'blur(12px)',
       marginBottom: '2rem'
     }}>
-      <h2 style={{ marginBottom: '1.5rem', color: '#000' }}>Weekly Budget Monitor</h2>
+      <h2 style={{ marginBottom: '1rem', color: '#222', textAlign: 'left', fontSize: '1.5rem', fontWeight: '600', userSelect: 'none' }}>Weekly Budget Monitor</h2>
       
       <form onSubmit={handleSubmit} style={{ 
         display: 'flex', 

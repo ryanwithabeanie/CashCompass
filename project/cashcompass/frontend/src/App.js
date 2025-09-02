@@ -393,7 +393,8 @@ function App() {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '1.5rem'
+          gap: '1.5rem',
+          userSelect: 'none'
         }}>
           <img 
             src={require('./assets/2.png')} 
@@ -402,13 +403,16 @@ function App() {
               height: '60px',
               width: 'auto',
               objectFit: 'contain',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+              userSelect: 'none',
+              pointerEvents: 'none'
             }}
           />
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.3rem'
+            gap: '0.3rem',
+            userSelect: 'none'
           }}>
             <h1 style={{
               margin: 0,
@@ -417,7 +421,8 @@ function App() {
               fontFamily: '"Segoe UI", Arial, sans-serif',
               fontWeight: '600',
               letterSpacing: '1px',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.2)'
+              textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+              userSelect: 'none'
             }}>
               CashCompass
             </h1>
@@ -427,7 +432,8 @@ function App() {
               fontWeight: '400',
               opacity: '0.9',
               fontStyle: 'italic',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+              textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+              userSelect: 'none'
             }}>
               Your ultimate finance tracker
             </span>
@@ -455,6 +461,7 @@ function App() {
             transition: "all 0.2s",
             backdropFilter: "blur(5px)",
             textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+            userSelect: "none",
             hover: {
               backgroundColor: "rgba(255, 255, 255, 0.25)",
               borderColor: "rgba(255, 255, 255, 0.4)"
@@ -479,7 +486,8 @@ function App() {
           margin: '0 0 1rem 0', 
           color: '#000',
           fontSize: '1.5rem',
-          textAlign: 'left'
+          textAlign: 'left',
+          userSelect: 'none'
         }}>
           Dashboard
         </h3>
@@ -500,7 +508,8 @@ function App() {
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(8px)',
+            userSelect: 'none'
           }}>
             Home
           </button>
@@ -515,7 +524,8 @@ function App() {
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(8px)',
+            userSelect: 'none'
           }}>
             Friends
           </button>
@@ -530,7 +540,8 @@ function App() {
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(8px)',
+            userSelect: 'none'
           }}>
             Budget
           </button>
@@ -545,7 +556,8 @@ function App() {
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(8px)',
+            userSelect: 'none'
           }}>
             Dynamics
           </button>
@@ -560,7 +572,8 @@ function App() {
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(8px)',
+            userSelect: 'none'
           }}>
             Planner
           </button>
@@ -634,12 +647,12 @@ function App() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           backdropFilter: 'blur(12px)'
         }}>
-          <h2 style={{ marginBottom: '1rem' }}>Entries</h2>
+          <h2 style={{ marginBottom: '1rem', color: '#222', textAlign: 'left', fontSize: '1.5rem', fontWeight: '600', userSelect: 'none' }}>Entries</h2>
 
-          {entriesLoading && <p style={{ fontStyle: 'italic' }}>Loading entries...</p>}
-          {entriesError && <p style={{ color: 'red' }}>{entriesError}</p>}
+          {entriesLoading && <p style={{ fontStyle: 'italic', userSelect: 'none' }}>Loading entries...</p>}
+          {entriesError && <p style={{ color: 'red', userSelect: 'none' }}>{entriesError}</p>}
 
-          <label style={{ marginBottom: '1rem', display: 'block' }}>
+          <label style={{ marginBottom: '1rem', display: 'block', userSelect: 'none' }}>
             Filter Entries:
             <select
               value={filter}

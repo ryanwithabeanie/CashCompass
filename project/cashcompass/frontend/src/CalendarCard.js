@@ -69,11 +69,12 @@ export default function CalendarCard({ entries = [] }) {
       marginBottom: '2rem'
     }}>
       <h2 style={{ 
-        marginBottom: '1.5rem', 
+        marginBottom: '1rem', 
         color: '#222', 
-        textAlign: 'center',
+        textAlign: 'left',
         fontSize: '1.5rem',
-        fontWeight: '600'
+        fontWeight: '600',
+        userSelect: 'none'
       }}>
         Financial Calendar
       </h2>

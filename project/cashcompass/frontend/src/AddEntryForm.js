@@ -73,7 +73,7 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
 
   return (
     <div>
-      <h2 style={{ marginBottom: '1rem' }}>Add Entry</h2>
+      <h2 style={{ marginBottom: '1rem', color: '#222', textAlign: 'left', fontSize: '1.5rem', fontWeight: '600', userSelect: 'none' }}>Add Entry</h2>
       <form 
         onSubmit={handleSubmit} 
         style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}

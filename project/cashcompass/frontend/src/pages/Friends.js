@@ -42,7 +42,9 @@ function Friends({ user, friends, expandedChatId, setExpandedChatId }) {
           <h3 style={{ 
             margin: '0 0 1rem 0', 
             color: '#222',
-            fontSize: '1.2rem',
+            fontSize: '1.5rem',
+            fontWeight: '600',
+            textAlign: 'left',
             userSelect: 'none'
           }}>
             Your Friends

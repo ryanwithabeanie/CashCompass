@@ -67,21 +67,23 @@ function FriendRequestsCard({ user }) {
 
   return (
     <div style={{
-      background: "rgba(255, 255, 255, 0.1)",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
-      borderRadius: "12px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-      backdropFilter: "blur(12px)",
-      padding: "1.5rem",
-      maxWidth: 400,
-      width: "100%", // Make the card fill its container
+      background: "transparent",
+      border: "none",
+      borderRadius: "0",
+      boxShadow: "none",
+      backdropFilter: "none",
+      padding: "0",
+      maxWidth: "none",
+      width: "100%",
       boxSizing: "border-box"
     }}>
       <h2 style={{
         color: "#222",
-        fontSize: "1.25rem",
-        fontWeight: "bold",
-        marginBottom: "1rem"
+        fontSize: "1.5rem",
+        fontWeight: "600",
+        marginBottom: "1rem",
+        textAlign: "left",
+        userSelect: "none"
       }}>
         Friend Requests
       </h2>
@@ -93,13 +95,14 @@ function FriendRequestsCard({ user }) {
           onChange={e => setEmail(e.target.value)}
           style={{ 
             width: "100%", 
-            padding: "0.5rem", 
+            padding: "0.4rem 0.5rem", 
             borderRadius: "8px", 
             border: "1px solid rgba(255, 255, 255, 0.2)",
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
             backdropFilter: 'blur(12px)',
             color: '#222',
-            outline: 'none'
+            outline: 'none',
+            boxSizing: 'border-box'
           }}
         />
         <button
@@ -109,12 +112,13 @@ function FriendRequestsCard({ user }) {
             color: "#fff",
             border: "none",
             padding: "0.4rem 0.7rem",
-            borderRadius: "6px",
+            borderRadius: "8px",
             fontWeight: "bold",
             fontSize: "1rem",
             width: "100%",
             marginTop: "0.5rem",
-            height: "40px"
+            height: "40px",
+            boxSizing: 'border-box'
           }}
         >
           Send

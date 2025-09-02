@@ -15,7 +15,7 @@ function Dynamics({
       {/* Summary Section with Generate Button */}
       <div style={{
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        padding: '1rem',
+        padding: '1.5rem',
         marginBottom: '2rem',
         borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -23,8 +23,8 @@ function Dynamics({
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         position: 'relative'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ margin: 0 }}>Weekly Summary</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{ margin: '0', color: '#222', textAlign: 'left', fontSize: '1.5rem', fontWeight: '600', userSelect: 'none' }}>Weekly Summary</h2>
           <button
             onClick={generateNewSummary}
             disabled={summaryLoading || isGeneratingSummary}
@@ -82,16 +82,16 @@ function Dynamics({
           }}>
             <div style={{ display: 'flex', gap: '2rem' }}>
               <div style={{ flex: 1 }}>
-                <h3>This Week</h3>
-                <p><strong>Income:</strong> ${summary.currentWeek?.income ?? 0}</p>
-                <p><strong>Expense:</strong> ${summary.currentWeek?.expense ?? 0}</p>
-                <p><strong>Savings:</strong> ${summary.currentWeek?.savings ?? 0}</p>
+                <h3 style={{ userSelect: 'none' }}>This Week</h3>
+                <p style={{ userSelect: 'none' }}><strong>Income:</strong> ${summary.currentWeek?.income ?? 0}</p>
+                <p style={{ userSelect: 'none' }}><strong>Expense:</strong> ${summary.currentWeek?.expense ?? 0}</p>
+                <p style={{ userSelect: 'none' }}><strong>Savings:</strong> ${summary.currentWeek?.savings ?? 0}</p>
               </div>
               <div style={{ flex: 1 }}>
-                <h3>Last Week</h3>
-                <p><strong>Income:</strong> ${summary.previousWeek?.income ?? 0}</p>
-                <p><strong>Expense:</strong> ${summary.previousWeek?.expense ?? 0}</p>
-                <p><strong>Savings:</strong> ${summary.previousWeek?.savings ?? 0}</p>
+                <h3 style={{ userSelect: 'none' }}>Last Week</h3>
+                <p style={{ userSelect: 'none' }}><strong>Income:</strong> ${summary.previousWeek?.income ?? 0}</p>
+                <p style={{ userSelect: 'none' }}><strong>Expense:</strong> ${summary.previousWeek?.expense ?? 0}</p>
+                <p style={{ userSelect: 'none' }}><strong>Savings:</strong> ${summary.previousWeek?.savings ?? 0}</p>
               </div>
             </div>
             {/* AI Insight */}
@@ -140,7 +140,7 @@ function Dynamics({
             flexDirection: 'column',
             alignItems: 'center'
           }}>
-            <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Pie Chart</h3>
+            <h3 style={{ color: '#222', marginBottom: '1rem', textAlign: 'left', fontSize: '1.2rem', fontWeight: '600', userSelect: 'none' }}>Pie Chart</h3>
             <div style={{ width: 300, height: 300 }}>
               <Pie
                 data={pieData}
@@ -169,7 +169,7 @@ function Dynamics({
             flexDirection: 'column',
             alignItems: 'center'
           }}>
-            <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Linear Graph</h3>
+            <h3 style={{ color: '#222', marginBottom: '1rem', textAlign: 'left', fontSize: '1.2rem', fontWeight: '600', userSelect: 'none' }}>Linear Graph</h3>
             <div style={{ width: 400, height: 300 }}>
               <Line
                 data={lineData}

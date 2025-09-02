@@ -196,9 +196,12 @@ export default function WeeklyPlannerCard() {
       border: '1px solid rgba(255, 255, 255, 0.2)'
     }}>
       <h2 style={{
-        margin: '0 0 1.5rem',
+        margin: '0 0 1rem',
         fontSize: '1.5rem',
-        fontWeight: 'bold',
+        fontWeight: '600',
+        color: '#222',
+        textAlign: 'left',
+        userSelect: 'none'
       }}>Weekly Expense Planner</h2>
 
       {loading ? (

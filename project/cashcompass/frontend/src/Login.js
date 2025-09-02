@@ -77,6 +77,7 @@ export default function Login({ onLoggedIn }) {
           borderRadius: 16,
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
           backdropFilter: "blur(12px)",
+          userSelect: "none"
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '0.5rem', userSelect: 'none' }}>
@@ -88,10 +89,10 @@ export default function Login({ onLoggedIn }) {
             pointerEvents: 'none'
           }} />
         </div>
-        <h2 style={{ marginBottom: "1rem", color: "#3498db", textAlign: 'center' }}>
+        <h2 style={{ marginBottom: "1rem", color: "#3498db", textAlign: 'center', userSelect: 'none' }}>
           {mode === "login" ? "Login" : "Register"}
         </h2>
-        <form onSubmit={submit}>
+        <form onSubmit={submit} style={{ userSelect: "none" }}>
           {mode === "register" && (
             <input
               placeholder="Username"
@@ -105,7 +106,9 @@ export default function Login({ onLoggedIn }) {
                 border: "1px solid rgba(255, 255, 255, 0.3)",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
                 backdropFilter: "blur(8px)",
-                color: "#222"
+                color: "#222",
+                userSelect: "text",
+                boxSizing: "border-box"
               }}
               required
             />
@@ -123,7 +126,9 @@ export default function Login({ onLoggedIn }) {
               border: "1px solid rgba(255, 255, 255, 0.3)",
               backgroundColor: "rgba(255, 255, 255, 0.1)",
               backdropFilter: "blur(8px)",
-              color: "#222"
+              color: "#222",
+              userSelect: "text",
+              boxSizing: "border-box"
             }}
             required
           />
@@ -140,7 +145,9 @@ export default function Login({ onLoggedIn }) {
               border: "1px solid rgba(255, 255, 255, 0.3)",
               backgroundColor: "rgba(255, 255, 255, 0.1)",
               backdropFilter: "blur(8px)",
-              color: "#222"
+              color: "#222",
+              userSelect: "text",
+              boxSizing: "border-box"
             }}
             required
           />
@@ -158,6 +165,8 @@ export default function Login({ onLoggedIn }) {
               fontSize: "1rem",
               boxShadow: "0 2px 8px rgba(52,152,219,0.15)",
               cursor: "pointer",
+              userSelect: "none",
+              boxSizing: "border-box"
             }}
           >
             {mode === "login" ? "Login" : "Register"}
@@ -169,13 +178,14 @@ export default function Login({ onLoggedIn }) {
             style={{
               color: msg.startsWith("✅") ? "#1e8449" : "#b00",
               marginTop: 12,
+              userSelect: 'none'
             }}
           >
             {msg}
           </p>
         )}
 
-        <p style={{ marginTop: 12 }}>
+        <p style={{ marginTop: 12, userSelect: 'none' }}>
           {mode === "login" ? "No account?" : "Already have an account?"}{" "}
           <button
             onClick={() =>
@@ -188,6 +198,7 @@ export default function Login({ onLoggedIn }) {
               cursor: "pointer",
               padding: 0,
               fontWeight: "bold",
+              userSelect: "none"
             }}
           >
             {mode === "login" ? "Register" : "Login"}
