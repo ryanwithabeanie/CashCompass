@@ -117,15 +117,31 @@ function FriendRequestsCard({ user, refreshFriends }) {
           style={{
             background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
             color: "#fff",
-            border: "none",
-            padding: "0.4rem 0.7rem",
-            borderRadius: "8px",
+            border: "2px solid rgba(52, 152, 219, 0.8)",
+            padding: "0.75rem 1.5rem",
+            borderRadius: "12px",
             fontWeight: "bold",
             fontSize: "1rem",
             width: "100%",
             marginTop: "0.5rem",
-            height: "40px",
-            boxSizing: 'border-box'
+            height: "auto",
+            boxSizing: 'border-box',
+            boxShadow: '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)',
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            transform: 'scale(1) translateY(0px)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+            backdropFilter: 'blur(12px)',
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.boxShadow = '0 0 20px rgba(52, 152, 219, 0.6), 0 12px 20px rgba(0,0,0,0.4)';
+            e.target.style.transform = 'scale(1.05) translateY(-3px)';
+            e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.boxShadow = '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)';
+            e.target.style.transform = 'scale(1) translateY(0px)';
+            e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
           }}
         >
           Send
@@ -151,18 +167,34 @@ function FriendRequestsCard({ user, refreshFriends }) {
               <button
                 onClick={() => acceptRequest(r._id)}
                 style={{
-                  background: "#2ecc71",
+                  background: 'linear-gradient(90deg, rgba(46, 204, 113, 0.9) 0%, rgba(26, 188, 156, 0.9) 100%)',
                   color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  padding: "0.3rem 0.7rem",
+                  border: "2px solid rgba(46, 204, 113, 0.8)",
+                  borderRadius: "8px",
+                  padding: "0.5rem 1rem",
                   fontWeight: "bold",
-                  fontSize: "0.95rem",
-                  height: "32px",
-                  minWidth: "70px",
+                  fontSize: "0.9rem",
+                  height: "auto",
+                  minWidth: "80px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  cursor: 'pointer',
+                  boxShadow: '0 0 10px rgba(46, 204, 113, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  transform: 'scale(1) translateY(0px)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = '0 0 12px rgba(46, 204, 113, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                  e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                  e.target.style.borderColor = 'rgba(46, 204, 113, 1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = '0 0 10px rgba(46, 204, 113, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                  e.target.style.transform = 'scale(1) translateY(0px)';
+                  e.target.style.borderColor = 'rgba(46, 204, 113, 0.8)';
                 }}
               >
                 Accept
@@ -170,18 +202,34 @@ function FriendRequestsCard({ user, refreshFriends }) {
               <button
                 onClick={() => declineRequest(r._id)}
                 style={{
-                  background: "#e74c3c",
+                  background: 'linear-gradient(90deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.9) 100%)',
                   color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  padding: "0.3rem 0.7rem",
+                  border: "2px solid rgba(231, 76, 60, 0.8)",
+                  borderRadius: "8px",
+                  padding: "0.5rem 1rem",
                   fontWeight: "bold",
-                  fontSize: "0.95rem",
-                  height: "32px",
-                  minWidth: "70px",
+                  fontSize: "0.9rem",
+                  height: "auto",
+                  minWidth: "80px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  cursor: 'pointer',
+                  boxShadow: '0 0 10px rgba(231, 76, 60, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  transform: 'scale(1) translateY(0px)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = '0 0 12px rgba(231, 76, 60, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                  e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                  e.target.style.borderColor = 'rgba(231, 76, 60, 1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = '0 0 10px rgba(231, 76, 60, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                  e.target.style.transform = 'scale(1) translateY(0px)';
+                  e.target.style.borderColor = 'rgba(231, 76, 60, 0.8)';
                 }}
               >
                 Decline

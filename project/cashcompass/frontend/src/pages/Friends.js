@@ -89,16 +89,44 @@ function Friends({ user, friends, expandedChatId, setExpandedChatId, refreshFrie
                     onClick={() => setExpandedChatId(expandedChatId === friend._id ? null : friend._id)}
                     style={{
                       padding: '0.5rem',
-                      backgroundColor: expandedChatId === friend._id ? 'rgba(52, 152, 219, 0.3)' : 'rgba(255, 255, 255, 0.2)',
-                      border: expandedChatId === friend._id ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: '6px',
+                      background: expandedChatId === friend._id 
+                        ? 'linear-gradient(90deg, rgba(52, 152, 219, 0.4) 0%, rgba(30, 144, 255, 0.4) 100%)' 
+                        : 'linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, rgba(240, 240, 240, 0.3) 100%)',
+                      border: expandedChatId === friend._id 
+                        ? '2px solid rgba(52, 152, 219, 0.8)' 
+                        : '2px solid rgba(255, 255, 255, 0.5)',
+                      borderRadius: '8px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       backdropFilter: 'blur(8px)',
                       fontSize: '1rem',
-                      userSelect: 'none'
+                      userSelect: 'none',
+                      boxShadow: expandedChatId === friend._id 
+                        ? '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)'
+                        : '0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.1)',
+                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                      transform: 'scale(1) translateY(0px)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.boxShadow = expandedChatId === friend._id 
+                        ? '0 0 12px rgba(52, 152, 219, 0.5), 0 6px 12px rgba(0,0,0,0.3)'
+                        : '0 0 12px rgba(255, 255, 255, 0.4), 0 6px 12px rgba(0,0,0,0.2)';
+                      e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                      e.target.style.borderColor = expandedChatId === friend._id 
+                        ? 'rgba(52, 152, 219, 1)'
+                        : 'rgba(255, 255, 255, 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.boxShadow = expandedChatId === friend._id 
+                        ? '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)'
+                        : '0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.1)';
+                      e.target.style.transform = 'scale(1) translateY(0px)';
+                      e.target.style.borderColor = expandedChatId === friend._id 
+                        ? 'rgba(52, 152, 219, 0.8)'
+                        : 'rgba(255, 255, 255, 0.5)';
                     }}
                     title={expandedChatId === friend._id ? "Close chat" : "Open chat"}
                   >

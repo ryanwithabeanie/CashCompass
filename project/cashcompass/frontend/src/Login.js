@@ -156,17 +156,31 @@ export default function Login({ onLoggedIn }) {
             type="submit"
             style={{
               width: "100%",
-              padding: 12,
+              padding: '0.85rem 1.8rem',
               background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
               color: "#fff",
-              border: "none",
-              borderRadius: 8,
+              border: "2px solid rgba(52, 152, 219, 0.8)",
+              borderRadius: '12px',
               fontWeight: "bold",
               fontSize: "1rem",
-              boxShadow: "0 2px 8px rgba(52,152,219,0.15)",
+              boxShadow: '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)',
               cursor: "pointer",
               userSelect: "none",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transform: 'scale(1) translateY(0px)',
+              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              backdropFilter: 'blur(12px)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 0 20px rgba(52, 152, 219, 0.6), 0 12px 20px rgba(0,0,0,0.4)';
+              e.target.style.transform = 'scale(1.05) translateY(-3px)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
             }}
           >
             {mode === "login" ? "Login" : "Register"}
@@ -192,13 +206,31 @@ export default function Login({ onLoggedIn }) {
               setMode(mode === "login" ? "register" : "login")
             }
             style={{
-              background: "none",
-              border: "none",
+              background: 'rgba(52, 152, 219, 0.1)',
+              border: '2px solid rgba(52, 152, 219, 0.8)',
+              borderRadius: '8px',
               color: "#3498db",
               cursor: "pointer",
-              padding: 0,
+              padding: '0.5rem 1rem',
               fontWeight: "bold",
-              userSelect: "none"
+              fontSize: '0.9rem',
+              boxShadow: '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transform: 'scale(1) translateY(0px)',
+              textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+              backdropFilter: 'blur(8px)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.4), 0 6px 12px rgba(0,0,0,0.25)';
+              e.target.style.transform = 'scale(1.05) translateY(-2px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.15)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+              e.target.style.transform = 'scale(1) translateY(0px)';
+              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+              e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
             }}
           >
             {mode === "login" ? "Register" : "Login"}

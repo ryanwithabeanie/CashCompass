@@ -471,14 +471,35 @@ function Dynamics({
                   ? "rgba(52, 152, 219, 0.1)" 
                   : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
                 color: (summaryLoading || isGeneratingSummary) ? "#222" : "#fff",
-                border: "1px solid rgba(52, 152, 219, 0.2)",
+                border: (summaryLoading || isGeneratingSummary) 
+                  ? "2px solid rgba(52, 152, 219, 0.2)" 
+                  : "2px solid rgba(52, 152, 219, 0.8)",
                 padding: "0.7rem 1.5rem",
                 borderRadius: "12px",
                 fontWeight: "bold",
                 cursor: summaryLoading || isGeneratingSummary ? "not-allowed" : "pointer",
                 opacity: summaryLoading || isGeneratingSummary ? 0.7 : 1,
-                transition: "all 0.2s",
-                backdropFilter: "blur(8px)"
+                transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                backdropFilter: "blur(8px)",
+                boxShadow: (summaryLoading || isGeneratingSummary) 
+                  ? 'none' 
+                  : '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                transform: 'scale(1) translateY(0px)',
+                textShadow: (summaryLoading || isGeneratingSummary) ? 'none' : '0 1px 2px rgba(0,0,0,0.3)'
+              }}
+              onMouseEnter={(e) => {
+                if (!summaryLoading && !isGeneratingSummary) {
+                  e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                  e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                  e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!summaryLoading && !isGeneratingSummary) {
+                  e.target.style.boxShadow = '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                  e.target.style.transform = 'scale(1) translateY(0px)';
+                  e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
+                }
               }}
             >
               {summaryLoading ? "Generating..." : summary ? "Generate Another Summary" : "Generate Summary"}
@@ -491,15 +512,27 @@ function Dynamics({
                 style={{
                   background: 'linear-gradient(90deg, rgba(46, 204, 113, 0.9) 0%, rgba(26, 188, 156, 0.9) 100%)',
                   color: '#fff',
-                  border: 'none',
+                  border: '2px solid rgba(46, 204, 113, 0.8)',
                   padding: '0.7rem 1.5rem',
                   borderRadius: '12px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   fontSize: '1rem',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  transition: 'all 0.2s ease',
-                  backdropFilter: 'blur(8px)'
+                  boxShadow: '0 0 10px rgba(46, 204, 113, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  backdropFilter: 'blur(8px)',
+                  transform: 'scale(1) translateY(0px)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = '0 0 12px rgba(46, 204, 113, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                  e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                  e.target.style.borderColor = 'rgba(46, 204, 113, 1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = '0 0 10px rgba(46, 204, 113, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                  e.target.style.transform = 'scale(1) translateY(0px)';
+                  e.target.style.borderColor = 'rgba(46, 204, 113, 0.8)';
                 }}
               >
                 Download Summary PDF
