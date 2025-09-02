@@ -461,6 +461,108 @@ function App() {
         </button>
       </div>
 
+      {/* Dashboard Navigation */}
+      <div style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        padding: '1.5rem',
+        marginBottom: '2rem',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+        backdropFilter: 'blur(12px)'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 1rem 0', 
+          color: '#000',
+          fontSize: '1.5rem',
+          textAlign: 'left'
+        }}>
+          Dashboard
+        </h3>
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          justifyContent: 'center'
+        }}>
+          <button style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            Home
+          </button>
+          <button style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            Friends
+          </button>
+          <button style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            Budget
+          </button>
+          <button style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            Dynamics
+          </button>
+          <button style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            Planner
+          </button>
+        </div>
+      </div>
+
       {/* Summary Section with Generate Button */}
       <div style={{
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
