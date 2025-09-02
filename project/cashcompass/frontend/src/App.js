@@ -12,7 +12,7 @@ import { Chart, ArcElement, CategoryScale, LinearScale, PointElement, LineElemen
 import FriendRequestsCard from './FriendRequestsCard';
 import ChatCard from './ChatCard';
 import BudgetCard from './BudgetCard';
-import WeeklyPlannerCard from './WeeklyPlannerCard';
+import Planner from './pages/Planner';
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -37,6 +37,7 @@ function App() {
   const [search, setSearch] = useState('');
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState('home');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   // -------------------- Effects (always at top level) --------------------
@@ -485,10 +486,12 @@ function App() {
           flexWrap: 'wrap',
           justifyContent: 'center'
         }}>
-          <button style={{
+          <button 
+            onClick={() => setCurrentPage('home')}
+            style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            backgroundColor: currentPage === 'home' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'home' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
             color: '#fff',
             cursor: 'pointer',
@@ -545,10 +548,12 @@ function App() {
           }}>
             Dynamics
           </button>
-          <button style={{
+          <button 
+            onClick={() => setCurrentPage('planner')}
+            style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: currentPage === 'planner' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'planner' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
             color: '#fff',
             cursor: 'pointer',
@@ -563,7 +568,10 @@ function App() {
         </div>
       </div>
 
-      {/* Summary Section with Generate Button */}
+      {/* Conditional Page Content */}
+      {currentPage === 'home' && (
+        <>
+          {/* Summary Section with Generate Button */}
       <div style={{
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         padding: '1rem',
@@ -746,9 +754,9 @@ function App() {
       </div>
 
       {/* Weekly Planner Card */}
-      <div style={{ width: '100%', marginBottom: '2rem' }}>
+      {/* <div style={{ width: '100%', marginBottom: '2rem' }}>
         <WeeklyPlannerCard />
-      </div>
+      </div> */}
 
       {/* Calendar Card */}
       <div style={{ width: '100%', marginBottom: '2rem' }}>
@@ -975,6 +983,13 @@ function App() {
             ))}
           </div>
         </div>
+      )}
+        </>
+      )}
+
+      {/* Planner Page */}
+      {currentPage === 'planner' && (
+        <Planner />
       )}
     </div>
   );
