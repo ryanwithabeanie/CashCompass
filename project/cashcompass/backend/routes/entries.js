@@ -237,14 +237,16 @@ router.get('/summary', auth, async (req, res) => {
             if (errorData.error.metadata && errorData.error.metadata.raw) {
               const rawError = errorData.error.metadata.raw.toLowerCase();
               if (rawError.includes('temporarily rate-limited upstream')) {
-                errorMessage = "AI summary temporarily unavailable due to upstream rate limiting. Please try again in a few minutes.";
+                errorMessage = "AI summary temporarily unavailable - the free AI service is busy. Please try again in a few minutes or consider upgrading for more reliable access.";
               } else if (rawError.includes('daily limit') || rawError.includes('daily quota')) {
-                errorMessage = "AI summary unavailable (free daily limit reached). Try again tomorrow.";
+                errorMessage = "AI summary unavailable (free daily limit reached). Try again tomorrow or upgrade for higher limits.";
               } else if (rawError.includes('rate limit')) {
                 errorMessage = "AI summary temporarily unavailable (rate limited). Please try again shortly.";
               }
             } else if (errorData.error.message.toLowerCase().includes('daily')) {
-              errorMessage = "AI summary unavailable (free daily limit reached). Try again tomorrow.";
+              errorMessage = "AI summary unavailable (free daily limit reached). Try again tomorrow or upgrade for higher limits.";
+            } else if (errorData.error.message.toLowerCase().includes('provider returned error')) {
+              errorMessage = "AI summary temporarily unavailable - the AI service is experiencing high demand. Please try again in a few minutes.";
             }
           }
         } catch (parseError) {

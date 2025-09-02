@@ -239,7 +239,9 @@ function App() {
         if (summaryData.aiComment && 
             (summaryData.aiComment.toLowerCase().includes('daily limit') ||
              summaryData.aiComment.toLowerCase().includes('rate limit') ||
-             summaryData.aiComment.toLowerCase().includes('unavailable'))) {
+             summaryData.aiComment.toLowerCase().includes('unavailable') ||
+             summaryData.aiComment.toLowerCase().includes('high demand') ||
+             summaryData.aiComment.toLowerCase().includes('experiencing'))) {
           setSummaryError(summaryData.aiComment);
           setSummary(null);
           return;
