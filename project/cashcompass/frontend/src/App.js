@@ -35,7 +35,8 @@ function App() {
   const [search, setSearch] = useState('');
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState(null);
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [dashboardCollapsed, setDashboardCollapsed] = useState(true);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
@@ -563,6 +564,11 @@ function App() {
       setEntries([]);
       setFriends([]);
       setSummary(null);
+      
+      // Reset to dashboard page for new login
+      setCurrentPage('dashboard');
+      setDashboardCollapsed(true); // Start with collapsed dashboard
+      
       // Set the new user, which will trigger the useEffect to load their data
       setUser(userData);
       // Force a new fetch of entries
@@ -736,37 +742,64 @@ function App() {
         boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
         backdropFilter: 'blur(12px)'
       }}>
-        <h3 style={{ 
-          margin: '0 0 1rem 0', 
-          color: '#000',
-          fontSize: '1.5rem',
-          textAlign: 'left',
-          userSelect: 'none'
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: dashboardCollapsed ? '0' : '1rem'
         }}>
-          Dashboard
-        </h3>
-        <div style={{
-          display: 'flex',
-          gap: '1rem',
-          flexWrap: 'wrap',
-          justifyContent: 'center'
-        }}>
-          <button 
-            onClick={() => navigateToPage('home')}
-            style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'home' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'home' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            color: currentPage === 'home' ? '#222' : '#fff',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: 'bold',
-            backdropFilter: 'blur(8px)',
+          <h3 style={{ 
+            margin: '0', 
+            color: '#000',
+            fontSize: '1.5rem',
+            textAlign: 'left',
             userSelect: 'none'
           }}>
-            Home
+            Dashboard
+          </h3>
+          <button
+            onClick={() => setDashboardCollapsed(!dashboardCollapsed)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '6px',
+              color: '#222',
+              cursor: 'pointer',
+              padding: '0.5rem',
+              fontSize: '1rem',
+              backdropFilter: 'blur(8px)',
+              userSelect: 'none',
+              transition: 'all 0.2s ease'
+            }}
+            title={dashboardCollapsed ? "Expand Dashboard" : "Collapse Dashboard"}
+          >
+            {dashboardCollapsed ? '▼' : '▲'}
           </button>
+        </div>
+        
+        {!dashboardCollapsed && (
+          <div style={{
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
+          }}>
+            <button 
+              onClick={() => navigateToPage('home')}
+              style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: currentPage === 'home' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+              border: currentPage === 'home' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: currentPage === 'home' ? '#222' : '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: 'bold',
+              backdropFilter: 'blur(8px)',
+              userSelect: 'none'
+            }}>
+              Home
+            </button>
           <button 
             onClick={() => navigateToPage('friends')}
             style={{
@@ -832,6 +865,7 @@ function App() {
             Planner
           </button>
         </div>
+        )}
       </div>
 
       {/* Conditional Page Content */}
@@ -860,7 +894,7 @@ function App() {
 
       {/* Weekly Planner Card */}
       {/* <div style={{ width: '100%', marginBottom: '2rem' }}>
-        <WeeklyPlannerCard />
+        <WeeklyPlannerCard user={user} />
       </div> */}
 
       {/* Calendar Card */}
@@ -1101,6 +1135,7 @@ function App() {
       {/* Dynamics Page */}
       {currentPage === 'dynamics' && (
         <Dynamics 
+          user={user}
           summary={summary}
           summaryLoading={summaryLoading}
           summaryError={summaryError}
