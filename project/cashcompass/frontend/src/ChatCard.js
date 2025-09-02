@@ -368,14 +368,32 @@ export default function ChatCard({ user, friend, isExpanded, onToggleExpand }) {
                 style={{
                   padding: '0.75rem 1.25rem',
                   borderRadius: '20px',
-                  border: 'none',
+                  border: (!friend || !newMessage.trim()) ? '2px solid rgba(52, 152, 219, 0.3)' : '2px solid rgba(52, 152, 219, 0.8)',
                   background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
                   color: '#fff',
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   cursor: (!friend || !newMessage.trim()) ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  opacity: (!friend || !newMessage.trim()) ? 0.5 : 1
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  opacity: (!friend || !newMessage.trim()) ? 0.5 : 1,
+                  boxShadow: (!friend || !newMessage.trim()) ? 'none' : '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                  transform: 'scale(1) translateY(0px)',
+                  textShadow: (!friend || !newMessage.trim()) ? 'none' : '0 1px 2px rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={(e) => {
+                  if (friend && newMessage.trim()) {
+                    e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                    e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                    e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (friend && newMessage.trim()) {
+                    e.target.style.boxShadow = '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                    e.target.style.transform = 'scale(1) translateY(0px)';
+                    e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
+                  }
                 }}
               >
                 Send

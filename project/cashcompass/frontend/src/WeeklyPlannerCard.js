@@ -344,7 +344,8 @@ export default function WeeklyPlannerCard({ user }) {
         <table style={{
           width: '100%',
           borderCollapse: 'collapse',
-          fontSize: '1rem'
+          fontSize: '1rem',
+          userSelect: 'none'
         }}>
           <thead>
             <tr style={{
@@ -355,28 +356,33 @@ export default function WeeklyPlannerCard({ user }) {
                 padding: '1rem', 
                 textAlign: 'left', 
                 borderRadius: '12px 0 0 0',
-                width: '25%'
+                width: '25%',
+                userSelect: 'none'
               }}>Category</th>
               <th style={{ 
                 padding: '1rem', 
                 textAlign: 'center',
-                width: '120px'
+                width: '120px',
+                userSelect: 'none'
               }}>Planned Budget</th>
               <th style={{ 
                 padding: '1rem', 
                 textAlign: 'center',
-                width: '120px'
+                width: '120px',
+                userSelect: 'none'
               }}>Actual Spent</th>
               <th style={{ 
                 padding: '1rem', 
                 textAlign: 'center',
-                width: '120px'
+                width: '120px',
+                userSelect: 'none'
               }}>Net Savings</th>
               <th style={{ 
                 padding: '1rem', 
                 textAlign: 'left', 
                 borderRadius: '0 12px 0 0',
-                width: '30%'
+                width: '30%',
+                userSelect: 'none'
               }}>Notes</th>
             </tr>
           </thead>
@@ -386,7 +392,7 @@ export default function WeeklyPlannerCard({ user }) {
                 backgroundColor: index % 2 === 0 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                 transition: 'background-color 0.2s'
               }}>
-                <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
+                <td style={{ padding: '1rem', whiteSpace: 'nowrap', userSelect: 'none' }}>
                   <span style={{ marginRight: '0.5rem' }}>{item.icon}</span>
                   {item.name}
                 </td>
@@ -431,7 +437,8 @@ export default function WeeklyPlannerCard({ user }) {
                 <td style={{
                   padding: '1rem',
                   textAlign: 'center',
-                  color: item.difference > 0 ? '#1e8449' : item.difference < 0 ? '#e74c3c' : '#666'
+                  color: item.difference > 0 ? '#1e8449' : item.difference < 0 ? '#e74c3c' : '#666',
+                  userSelect: 'none'
                 }}>
                   {item.difference > 0 ? '+' : ''}{item.difference}
                 </td>

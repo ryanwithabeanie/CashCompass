@@ -613,8 +613,12 @@ function App() {
           display: 'flex',
           alignItems: 'center',
           gap: '1.5rem',
-          userSelect: 'none'
-        }}>
+          userSelect: 'none',
+          cursor: 'pointer'
+        }}
+        onClick={() => window.location.reload()}
+        title="Click to refresh page"
+        >
           <img 
             src={require('./assets/2.png')} 
             alt="CashCompass Logo" 
@@ -624,7 +628,7 @@ function App() {
               objectFit: 'contain',
               filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
               userSelect: 'none',
-              pointerEvents: 'none'
+              transition: 'transform 0.2s ease'
             }}
           />
           <div style={{
@@ -682,16 +686,16 @@ function App() {
           <button
           onClick={() => setSettingsPanelOpen(true)}
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            background: "linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(240, 240, 240, 0.2) 100%)",
             color: "#fff",
-            border: "2px solid rgba(255, 255, 255, 0.3)",
+            border: "2px solid rgba(255, 255, 255, 0.4)",
             padding: "0.5rem",
             borderRadius: "8px",
             fontWeight: "600",
             fontSize: "1rem",
             cursor: "pointer",
-            transition: "all 0.2s",
-            backdropFilter: "blur(5px)",
+            transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            backdropFilter: "blur(8px)",
             textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
             userSelect: "none",
             width: "40px",
@@ -699,32 +703,41 @@ function App() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            gap: "2px",
-            hover: {
-              backgroundColor: "rgba(255, 255, 255, 0.25)",
-              borderColor: "rgba(255, 255, 255, 0.4)"
-            }
+            justifyContent: "center"
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.boxShadow = "0 0 12px rgba(255, 255, 255, 0.4), 0 6px 12px rgba(0,0,0,0.3)";
+            e.target.style.transform = "scale(1.05) translateY(-2px)";
+            e.target.style.background = "linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, rgba(240, 240, 240, 0.3) 100%)";
+            e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.boxShadow = "0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.2)";
+            e.target.style.transform = "scale(1) translateY(0px)";
+            e.target.style.background = "linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(240, 240, 240, 0.2) 100%)";
+            e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
           }}
         >
           <div style={{
             width: "20px",
             height: "3px",
-            backgroundColor: "#fff",
+            backgroundColor: "rgba(255, 255, 255, 1)",
             borderRadius: "1.5px",
-            display: "block"
+            display: "block",
+            marginBottom: "3px"
           }}></div>
           <div style={{
             width: "20px",
             height: "3px",
-            backgroundColor: "#fff",
+            backgroundColor: "rgba(255, 255, 255, 1)",
             borderRadius: "1.5px",
-            display: "block"
+            display: "block",
+            marginBottom: "3px"
           }}></div>
           <div style={{
             width: "20px",
             height: "3px",
-            backgroundColor: "#fff",
+            backgroundColor: "rgba(255, 255, 255, 1)",
             borderRadius: "1.5px",
             display: "block"
           }}></div>
@@ -760,34 +773,39 @@ function App() {
           <button
             onClick={() => setDashboardCollapsed(!dashboardCollapsed)}
             style={{
-              background: 'rgba(255, 255, 255, 0.25)',
-              border: '1px solid rgba(255, 255, 255, 0.4)',
-              borderRadius: '10px',
-              color: '#222',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '2px solid rgba(255, 255, 255, 0.4)',
+              borderRadius: '8px',
+              color: '#fff',
               cursor: 'pointer',
               padding: '0.6rem',
               fontSize: '1.1rem',
               backdropFilter: 'blur(12px)',
               userSelect: 'none',
               transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              boxShadow: '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)',
-              textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.2)',
+              textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+              transform: 'scale(1) translateY(0px)',
+              fontWeight: 'bold',
+              width: '35px',
+              height: '35px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
             onMouseEnter={(e) => {
-              e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.4), 0 6px 12px rgba(0,0,0,0.25)';
-              e.target.style.transform = 'scale(1.15) translateY(-2px)';
-              e.target.style.backgroundColor = 'rgba(52, 152, 219, 0.2)';
-              e.target.style.borderColor = 'rgba(52, 152, 219, 0.7)';
+              e.target.style.boxShadow = '0 0 12px rgba(255, 255, 255, 0.4), 0 6px 12px rgba(0,0,0,0.3)';
+              e.target.style.transform = 'scale(1.05) translateY(-2px)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.6)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)';
+              e.target.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.2)';
               e.target.style.transform = 'scale(1) translateY(0px)';
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
               e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
             }}
             title={dashboardCollapsed ? "Expand Dashboard" : "Collapse Dashboard"}
           >
-            {dashboardCollapsed ? '▼' : '▲'}
+            {dashboardCollapsed ? '+' : '×'}
           </button>
         </div>
         
@@ -1204,9 +1222,27 @@ function App() {
                             marginRight: '0.5rem',
                             background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
                             color: 'white',
-                            border: 'none',
+                            border: '2px solid rgba(52, 152, 219, 0.8)',
                             padding: '0.4rem 0.8rem',
-                            borderRadius: '5px'
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            boxShadow: '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                            transform: 'scale(1) translateY(0px)',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                            backdropFilter: 'blur(8px)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                            e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                            e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.boxShadow = '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                            e.target.style.transform = 'scale(1) translateY(0px)';
+                            e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
                           }}
                         >
                           Edit
@@ -1214,11 +1250,29 @@ function App() {
                         <button
                           onClick={() => deleteEntry(entry._id)}
                           style={{
-                            backgroundColor: '#ff3b3b',
+                            background: 'linear-gradient(90deg, rgba(255, 99, 99, 0.9) 0%, rgba(255, 82, 82, 0.9) 100%)',
                             color: '#fff',
-                            border: 'none',
+                            border: '2px solid rgba(255, 99, 99, 0.8)',
                             padding: '0.4rem 0.8rem',
-                            borderRadius: '5px'
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            boxShadow: '0 0 10px rgba(255, 99, 99, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                            transform: 'scale(1) translateY(0px)',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                            backdropFilter: 'blur(8px)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.boxShadow = '0 0 12px rgba(255, 99, 99, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                            e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                            e.target.style.borderColor = 'rgba(255, 99, 99, 1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.boxShadow = '0 0 10px rgba(255, 99, 99, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                            e.target.style.transform = 'scale(1) translateY(0px)';
+                            e.target.style.borderColor = 'rgba(255, 99, 99, 0.8)';
                           }}
                         >
                           Delete
@@ -1329,17 +1383,33 @@ function App() {
               <button
                 onClick={profileMode ? handleBackToSettings : () => setSettingsPanelOpen(false)}
                 style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontSize: '1.5rem',
+                  background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(240, 240, 240, 0.2) 100%)',
+                  border: '2px solid rgba(255, 255, 255, 0.4)',
+                  color: '#fff',
+                  fontSize: '1.2rem',
                   cursor: 'pointer',
                   padding: '0.5rem',
-                  borderRadius: '50%',
-                  transition: 'background-color 0.2s',
-                  hover: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                  }
+                  borderRadius: '8px',
+                  transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  boxShadow: '0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.2)',
+                  transform: 'scale(1) translateY(0px)',
+                  backdropFilter: 'blur(8px)',
+                  fontWeight: 'bold',
+                  width: '35px',
+                  height: '35px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = '0 0 12px rgba(255, 255, 255, 0.4), 0 6px 12px rgba(0,0,0,0.3)';
+                  e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0,0,0,0.2)';
+                  e.target.style.transform = 'scale(1) translateY(0px)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
                 }}
               >
                 {profileMode ? '←' : '×'}
@@ -1349,7 +1419,7 @@ function App() {
             {/* Panel Content - Scrollable */}
             <div style={{
               flex: 1,
-              padding: '0 2rem 2rem 2rem',
+              padding: '1.5rem 2rem 2rem 2rem',
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
@@ -1357,23 +1427,36 @@ function App() {
             }}>
               {!profileMode ? (
                 // Settings Mode - Show buttons
-                <>
+                <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {/* Profile Button */}
                   <button
                     onClick={handleProfileClick}
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.3) 0%, rgba(30, 144, 255, 0.3) 100%)',
                       color: '#ffffff',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: '2px solid rgba(52, 152, 219, 0.5)',
                       padding: '1rem 1.5rem',
                       borderRadius: '8px',
-                      fontWeight: '500',
+                      fontWeight: '600',
                       fontSize: '1rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                       textAlign: 'left',
                       backdropFilter: 'blur(10px)',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      boxShadow: '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                      transform: 'scale(1) translateY(0px)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                      e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                      e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.boxShadow = '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                      e.target.style.transform = 'scale(1) translateY(0px)';
+                      e.target.style.borderColor = 'rgba(52, 152, 219, 0.5)';
                     }}
                   >
                     Profile
@@ -1383,18 +1466,31 @@ function App() {
                   <button
                     onClick={handleLogout}
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      background: 'linear-gradient(90deg, rgba(255, 193, 7, 0.3) 0%, rgba(255, 179, 0, 0.3) 100%)',
                       color: '#ffffff',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: '2px solid rgba(255, 193, 7, 0.5)',
                       padding: '1rem 1.5rem',
                       borderRadius: '8px',
-                      fontWeight: '500',
+                      fontWeight: '600',
                       fontSize: '1rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                       textAlign: 'left',
                       backdropFilter: 'blur(10px)',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      boxShadow: '0 0 10px rgba(255, 193, 7, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                      transform: 'scale(1) translateY(0px)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.boxShadow = '0 0 12px rgba(255, 193, 7, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                      e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                      e.target.style.borderColor = 'rgba(255, 193, 7, 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.boxShadow = '0 0 10px rgba(255, 193, 7, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                      e.target.style.transform = 'scale(1) translateY(0px)';
+                      e.target.style.borderColor = 'rgba(255, 193, 7, 0.5)';
                     }}
                   >
                     Logout
@@ -1404,23 +1500,36 @@ function App() {
                   <button
                     onClick={handleDeleteUser}
                     style={{
-                      backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                      background: 'linear-gradient(90deg, rgba(255, 99, 99, 0.3) 0%, rgba(255, 82, 82, 0.3) 100%)',
                       color: '#ffffff',
-                      border: '1px solid rgba(220, 53, 69, 0.5)',
+                      border: '2px solid rgba(255, 99, 99, 0.5)',
                       padding: '1rem 1.5rem',
                       borderRadius: '8px',
-                      fontWeight: '500',
+                      fontWeight: '600',
                       fontSize: '1rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                       textAlign: 'left',
                       backdropFilter: 'blur(10px)',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      boxShadow: '0 0 10px rgba(255, 99, 99, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                      transform: 'scale(1) translateY(0px)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.boxShadow = '0 0 12px rgba(255, 99, 99, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                      e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                      e.target.style.borderColor = 'rgba(255, 99, 99, 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.boxShadow = '0 0 10px rgba(255, 99, 99, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                      e.target.style.transform = 'scale(1) translateY(0px)';
+                      e.target.style.borderColor = 'rgba(255, 99, 99, 0.5)';
                     }}
                   >
                     Delete Account
                   </button>
-                </>
+                </div>
               ) : (
                 // Profile Mode - Show form
                 <>
@@ -1575,18 +1684,31 @@ function App() {
                   <button
                     onClick={handleProfileUpdate}
                     style={{
-                      backgroundColor: 'rgba(52, 152, 219, 0.3)',
+                      background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.3) 0%, rgba(30, 144, 255, 0.3) 100%)',
                       color: '#ffffff',
-                      border: '1px solid rgba(52, 152, 219, 0.5)',
+                      border: '2px solid rgba(52, 152, 219, 0.5)',
                       padding: '1rem 1.5rem',
                       borderRadius: '8px',
-                      fontWeight: '500',
+                      fontWeight: '600',
                       fontSize: '1rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                       textAlign: 'center',
                       backdropFilter: 'blur(10px)',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      boxShadow: '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                      transform: 'scale(1) translateY(0px)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                      e.target.style.transform = 'scale(1.05) translateY(-2px)';
+                      e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.boxShadow = '0 0 10px rgba(52, 152, 219, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                      e.target.style.transform = 'scale(1) translateY(0px)';
+                      e.target.style.borderColor = 'rgba(52, 152, 219, 0.5)';
                     }}
                   >
                     Update Profile

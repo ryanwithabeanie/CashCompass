@@ -202,9 +202,9 @@ function FriendRequestsCard({ user, refreshFriends }) {
               <button
                 onClick={() => declineRequest(r._id)}
                 style={{
-                  background: 'linear-gradient(90deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.9) 100%)',
+                  background: 'linear-gradient(90deg, rgba(255, 99, 99, 0.9) 0%, rgba(255, 82, 82, 0.9) 100%)',
                   color: "#fff",
-                  border: "2px solid rgba(231, 76, 60, 0.8)",
+                  border: "2px solid rgba(255, 99, 99, 0.8)",
                   borderRadius: "8px",
                   padding: "0.5rem 1rem",
                   fontWeight: "bold",
@@ -215,21 +215,21 @@ function FriendRequestsCard({ user, refreshFriends }) {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: 'pointer',
-                  boxShadow: '0 0 10px rgba(231, 76, 60, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
+                  boxShadow: '0 0 10px rgba(255, 99, 99, 0.3), 0 4px 8px rgba(0,0,0,0.2)',
                   transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                   transform: 'scale(1) translateY(0px)',
                   textShadow: '0 1px 2px rgba(0,0,0,0.3)',
                   backdropFilter: 'blur(8px)'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.boxShadow = '0 0 12px rgba(231, 76, 60, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
+                  e.target.style.boxShadow = '0 0 12px rgba(255, 99, 99, 0.5), 0 6px 12px rgba(0,0,0,0.3)';
                   e.target.style.transform = 'scale(1.05) translateY(-2px)';
-                  e.target.style.borderColor = 'rgba(231, 76, 60, 1)';
+                  e.target.style.borderColor = 'rgba(255, 99, 99, 1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.boxShadow = '0 0 10px rgba(231, 76, 60, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
+                  e.target.style.boxShadow = '0 0 10px rgba(255, 99, 99, 0.3), 0 4px 8px rgba(0,0,0,0.2)';
                   e.target.style.transform = 'scale(1) translateY(0px)';
-                  e.target.style.borderColor = 'rgba(231, 76, 60, 0.8)';
+                  e.target.style.borderColor = 'rgba(255, 99, 99, 0.8)';
                 }}
               >
                 Decline
