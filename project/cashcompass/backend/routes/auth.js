@@ -106,6 +106,59 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// PUT /api/auth/update-profile - Update user profile
+router.put("/update-profile", auth, async (req, res) => {
+  try {
+    const { username, email, newPassword, currentPassword } = req.body;
+    const userId = req.user._id;
+
+    // Verify current password
+    const user = await User.findById(userId);
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    // Check if email is already taken by another user
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email, _id: { $ne: userId } });
+      if (emailExists) {
+        return res.status(400).json({ error: "Email is already taken by another user" });
+      }
+    }
+
+    // Prepare update data
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    
+    // Hash new password if provided
+    if (newPassword) {
+      updateData.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    // Update user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, select: '-password' }
+    );
+
+    return res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email
+      }
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    return res.status(500).json({ error: "Server error: " + err.message });
+  }
+});
+
 // DELETE /api/auth/delete-user - Delete user and all associated data
 router.delete("/delete-user", auth, async (req, res) => {
   try {

@@ -38,6 +38,14 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false);
+  const [profileMode, setProfileMode] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: '',
+    email: '',
+    newPassword: '',
+    confirmPassword: '',
+    currentPassword: ''
+  });
 
   // -------------------- Effects (always at top level) --------------------
   // Initialize auth state from localStorage and validate token
@@ -162,6 +170,20 @@ function App() {
 
     loadInitialData();
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Prevent background scroll when settings panel is open
+  useEffect(() => {
+    if (settingsPanelOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [settingsPanelOpen]);
 
   // -------------------- Functions --------------------
   const generateNewSummary = async () => {
@@ -293,6 +315,74 @@ function App() {
     setFriends([]);
     setSummary(null);
     setSettingsPanelOpen(false);
+    setProfileMode(false);
+  };
+
+  const handleProfileClick = () => {
+    setProfileMode(true);
+    setProfileForm({
+      username: user.username || '',
+      email: user.email || '',
+      newPassword: '',
+      confirmPassword: '',
+      currentPassword: ''
+    });
+  };
+
+  const handleBackToSettings = () => {
+    setProfileMode(false);
+    setProfileForm({
+      username: '',
+      email: '',
+      newPassword: '',
+      confirmPassword: '',
+      currentPassword: ''
+    });
+  };
+
+  const handleProfileUpdate = async () => {
+    if (!profileForm.currentPassword) {
+      alert('Please enter your current password to confirm changes.');
+      return;
+    }
+
+    if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) {
+      alert('New passwords do not match.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const updateData = {
+        currentPassword: profileForm.currentPassword,
+        username: profileForm.username,
+        email: profileForm.email
+      };
+
+      if (profileForm.newPassword) {
+        updateData.newPassword = profileForm.newPassword;
+      }
+
+      const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (response.ok) {
+        alert('Profile updated successfully! Please log in again with your new credentials.');
+        handleLogout();
+      } else {
+        const error = await response.json();
+        alert(`Failed to update profile: ${error.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
+    }
   };
 
   const handleDeleteUser = async () => {
@@ -953,20 +1043,22 @@ function App() {
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRight: 'none',
               zIndex: 1001,
-              padding: '2rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '1.5rem',
               transition: 'right 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.3)'
+              boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.3)',
+              overflowY: 'auto',
+              overflowX: 'hidden'
             }}
+            onWheel={(e) => e.stopPropagation()}
           >
-            {/* Panel Header */}
+            {/* Panel Header - Fixed */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1rem'
+              padding: '2rem 2rem 1rem 2rem',
+              flexShrink: 0
             }}>
               <h2 style={{
                 margin: 0,
@@ -975,10 +1067,10 @@ function App() {
                 fontWeight: '600',
                 textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
               }}>
-                Settings
+                {profileMode ? 'Profile' : 'Settings'}
               </h2>
               <button
-                onClick={() => setSettingsPanelOpen(false)}
+                onClick={profileMode ? handleBackToSettings : () => setSettingsPanelOpen(false)}
                 style={{
                   backgroundColor: 'transparent',
                   border: 'none',
@@ -993,81 +1085,257 @@ function App() {
                   }
                 }}
               >
-                ×
+                {profileMode ? '←' : '×'}
               </button>
             </div>
 
-            {/* Settings Buttons */}
+            {/* Panel Content - Scrollable */}
             <div style={{
+              flex: 1,
+              padding: '0 2rem 2rem 2rem',
+              overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}>
-              {/* Profile Button */}
-              <button
-                onClick={() => {
-                  // TODO: Add profile functionality later
-                  console.log('Profile clicked');
-                }}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  padding: '1rem 1.5rem',
-                  borderRadius: '8px',
-                  fontWeight: '500',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  textAlign: 'left',
-                  backdropFilter: 'blur(10px)',
-                  boxSizing: 'border-box'
-                }}
-              >
-                Profile
-              </button>
+              {!profileMode ? (
+                // Settings Mode - Show buttons
+                <>
+                  {/* Profile Button */}
+                  <button
+                    onClick={handleProfileClick}
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: '#ffffff',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      padding: '1rem 1.5rem',
+                      borderRadius: '8px',
+                      fontWeight: '500',
+                      fontSize: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      textAlign: 'left',
+                      backdropFilter: 'blur(10px)',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    Profile
+                  </button>
 
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  padding: '1rem 1.5rem',
-                  borderRadius: '8px',
-                  fontWeight: '500',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  textAlign: 'left',
-                  backdropFilter: 'blur(10px)',
-                  boxSizing: 'border-box'
-                }}
-              >
-                Logout
-              </button>
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: '#ffffff',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      padding: '1rem 1.5rem',
+                      borderRadius: '8px',
+                      fontWeight: '500',
+                      fontSize: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      textAlign: 'left',
+                      backdropFilter: 'blur(10px)',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    Logout
+                  </button>
 
-              {/* Delete User Button */}
-              <button
-                onClick={handleDeleteUser}
-                style={{
-                  backgroundColor: 'rgba(220, 53, 69, 0.2)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(220, 53, 69, 0.5)',
-                  padding: '1rem 1.5rem',
-                  borderRadius: '8px',
-                  fontWeight: '500',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  textAlign: 'left',
-                  backdropFilter: 'blur(10px)',
-                  boxSizing: 'border-box'
-                }}
-              >
-                Delete Account
-              </button>
+                  {/* Delete User Button */}
+                  <button
+                    onClick={handleDeleteUser}
+                    style={{
+                      backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                      color: '#ffffff',
+                      border: '1px solid rgba(220, 53, 69, 0.5)',
+                      padding: '1rem 1.5rem',
+                      borderRadius: '8px',
+                      fontWeight: '500',
+                      fontSize: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      textAlign: 'left',
+                      backdropFilter: 'blur(10px)',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    Delete Account
+                  </button>
+                </>
+              ) : (
+                // Profile Mode - Show form
+                <>
+                  {/* Username Field */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#ffffff',
+                      fontSize: '0.9rem',
+                      marginBottom: '0.5rem',
+                      fontWeight: '500'
+                    }}>
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      value={profileForm.username}
+                      onChange={(e) => setProfileForm({...profileForm, username: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  {/* Email Field */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#ffffff',
+                      fontSize: '0.9rem',
+                      marginBottom: '0.5rem',
+                      fontWeight: '500'
+                    }}>
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={profileForm.email}
+                      onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  {/* New Password Field */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#ffffff',
+                      fontSize: '0.9rem',
+                      marginBottom: '0.5rem',
+                      fontWeight: '500'
+                    }}>
+                      New Password (optional)
+                    </label>
+                    <input
+                      type="password"
+                      value={profileForm.newPassword}
+                      onChange={(e) => setProfileForm({...profileForm, newPassword: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  {/* Confirm New Password Field */}
+                  {profileForm.newPassword && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{
+                        display: 'block',
+                        color: '#ffffff',
+                        fontSize: '0.9rem',
+                        marginBottom: '0.5rem',
+                        fontWeight: '500'
+                      }}>
+                        Confirm New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={profileForm.confirmPassword}
+                        onChange={(e) => setProfileForm({...profileForm, confirmPassword: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255, 255, 255, 0.3)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          backdropFilter: 'blur(8px)',
+                          color: '#ffffff',
+                          fontSize: '1rem',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Current Password Field */}
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#ffffff',
+                      fontSize: '0.9rem',
+                      marginBottom: '0.5rem',
+                      fontWeight: '500'
+                    }}>
+                      Current Password (required to confirm changes)
+                    </label>
+                    <input
+                      type="password"
+                      value={profileForm.currentPassword}
+                      onChange={(e) => setProfileForm({...profileForm, currentPassword: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  {/* Update Button */}
+                  <button
+                    onClick={handleProfileUpdate}
+                    style={{
+                      backgroundColor: 'rgba(52, 152, 219, 0.3)',
+                      color: '#ffffff',
+                      border: '1px solid rgba(52, 152, 219, 0.5)',
+                      padding: '1rem 1.5rem',
+                      borderRadius: '8px',
+                      fontWeight: '500',
+                      fontSize: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      textAlign: 'center',
+                      backdropFilter: 'blur(10px)',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    Update Profile
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </>
