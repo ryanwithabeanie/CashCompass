@@ -2,6 +2,12 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Entry = require("../models/Entry");
+const Budget = require("../models/Budget");
+const WeeklyPlan = require("../models/WeeklyPlan");
+const ChatMessage = require("../models/ChatMessage");
+const FriendRequest = require("../models/FriendRequest");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
 console.log("✅ Auth routes loaded");
@@ -99,4 +105,34 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ error: "Server error: " + err.message });
   }
 });
+
+// DELETE /api/auth/delete-user - Delete user and all associated data
+router.delete("/delete-user", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Delete all user-related data
+    await Promise.all([
+      Entry.deleteMany({ userId }),
+      Budget.deleteMany({ userId }),
+      WeeklyPlan.deleteMany({ userId }),
+      ChatMessage.deleteMany({ $or: [{ senderId: userId }, { receiverId: userId }] }),
+      FriendRequest.deleteMany({ $or: [{ senderId: userId }, { receiverId: userId }] }),
+      // Remove user from other users' friends arrays
+      User.updateMany(
+        { friends: userId },
+        { $pull: { friends: userId } }
+      )
+    ]);
+
+    // Finally, delete the user
+    await User.findByIdAndDelete(userId);
+
+    return res.json({ message: "User and all associated data deleted successfully" });
+  } catch (err) {
+    console.error('Delete user error:', err);
+    return res.status(500).json({ error: "Server error: " + err.message });
+  }
+});
+
 module.exports = router;

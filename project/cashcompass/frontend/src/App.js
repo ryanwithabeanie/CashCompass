@@ -37,6 +37,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [settingsPanelOpen, setSettingsPanelOpen] = useState(false);
 
   // -------------------- Effects (always at top level) --------------------
   // Initialize auth state from localStorage and validate token
@@ -284,6 +285,44 @@ function App() {
     }
   };
 
+  // -------------------- Settings Panel Functions --------------------
+  const handleLogout = () => {
+    clearAuth(); 
+    setUser(null);
+    setEntries([]);
+    setFriends([]);
+    setSummary(null);
+    setSettingsPanelOpen(false);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/auth/delete-user', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        alert('Account deleted successfully');
+        handleLogout();
+      } else {
+        const error = await response.json();
+        alert(`Failed to delete account: ${error.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete account. Please try again.');
+    }
+  };
+
   // -------------------- Navigation Functions (Optimized with useCallback) --------------------
   const navigateToPage = useCallback((page) => {
     setCurrentPage(page);
@@ -459,20 +498,14 @@ function App() {
             </span>
           )}
 
-          {/* Logout Button */}
+          {/* Settings Button */}
           <button
-          onClick={() => { 
-            clearAuth(); 
-            setUser(null);
-            setEntries([]);
-            setFriends([]);
-            setSummary(null);
-          }}
+          onClick={() => setSettingsPanelOpen(true)}
           style={{
             backgroundColor: "rgba(255, 255, 255, 0.15)",
             color: "#fff",
             border: "2px solid rgba(255, 255, 255, 0.3)",
-            padding: "0.7rem 1.5rem",
+            padding: "0.5rem",
             borderRadius: "8px",
             fontWeight: "600",
             fontSize: "1rem",
@@ -481,13 +514,40 @@ function App() {
             backdropFilter: "blur(5px)",
             textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
             userSelect: "none",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "2px",
             hover: {
               backgroundColor: "rgba(255, 255, 255, 0.25)",
               borderColor: "rgba(255, 255, 255, 0.4)"
             }
           }}
         >
-          Logout
+          <div style={{
+            width: "20px",
+            height: "3px",
+            backgroundColor: "#fff",
+            borderRadius: "1.5px",
+            display: "block"
+          }}></div>
+          <div style={{
+            width: "20px",
+            height: "3px",
+            backgroundColor: "#fff",
+            borderRadius: "1.5px",
+            display: "block"
+          }}></div>
+          <div style={{
+            width: "20px",
+            height: "3px",
+            backgroundColor: "#fff",
+            borderRadius: "1.5px",
+            display: "block"
+          }}></div>
         </button>
         </div>
       </div>
@@ -861,6 +921,156 @@ function App() {
           pieData={pieData}
           lineData={lineData}
         />
+      )}
+
+      {/* Settings Panel */}
+      {settingsPanelOpen && (
+        <>
+          {/* Overlay */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              zIndex: 1000
+            }}
+            onClick={() => setSettingsPanelOpen(false)}
+          />
+          
+          {/* Settings Panel */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: settingsPanelOpen ? 0 : '-300px',
+              height: '100vh',
+              width: '300px',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRight: 'none',
+              zIndex: 1001,
+              padding: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.5rem',
+              transition: 'right 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            {/* Panel Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem'
+            }}>
+              <h2 style={{
+                margin: 0,
+                color: '#ffffff',
+                fontSize: '1.8rem',
+                fontWeight: '600',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+              }}>
+                Settings
+              </h2>
+              <button
+                onClick={() => setSettingsPanelOpen(false)}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  padding: '0.5rem',
+                  borderRadius: '50%',
+                  transition: 'background-color 0.2s',
+                  hover: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Settings Buttons */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              {/* Profile Button */}
+              <button
+                onClick={() => {
+                  // TODO: Add profile functionality later
+                  console.log('Profile clicked');
+                }}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textAlign: 'left',
+                  backdropFilter: 'blur(10px)',
+                  boxSizing: 'border-box'
+                }}
+              >
+                Profile
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textAlign: 'left',
+                  backdropFilter: 'blur(10px)',
+                  boxSizing: 'border-box'
+                }}
+              >
+                Logout
+              </button>
+
+              {/* Delete User Button */}
+              <button
+                onClick={handleDeleteUser}
+                style={{
+                  backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(220, 53, 69, 0.5)',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textAlign: 'left',
+                  backdropFilter: 'blur(10px)',
+                  boxSizing: 'border-box'
+                }}
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
