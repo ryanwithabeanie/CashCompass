@@ -718,29 +718,47 @@ function App() {
             e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
           }}
         >
-          <div style={{
+          <span style={{
             width: "20px",
             height: "3px",
-            backgroundColor: "rgba(255, 255, 255, 1)",
+            backgroundColor: "white",
             borderRadius: "1.5px",
-            display: "block",
-            marginBottom: "3px"
-          }}></div>
-          <div style={{
+            display: "inline-block",
+            marginBottom: "3px",
+            opacity: 1,
+            border: "none",
+            outline: "none",
+            boxShadow: "none",
+            filter: "none",
+            pointerEvents: "none"
+          }}></span>
+          <span style={{
             width: "20px",
             height: "3px",
-            backgroundColor: "rgba(255, 255, 255, 1)",
+            backgroundColor: "white",
             borderRadius: "1.5px",
-            display: "block",
-            marginBottom: "3px"
-          }}></div>
-          <div style={{
+            display: "inline-block",
+            marginBottom: "3px",
+            opacity: 1,
+            border: "none",
+            outline: "none",
+            boxShadow: "none",
+            filter: "none",
+            pointerEvents: "none"
+          }}></span>
+          <span style={{
             width: "20px",
             height: "3px",
-            backgroundColor: "rgba(255, 255, 255, 1)",
+            backgroundColor: "white",
             borderRadius: "1.5px",
-            display: "block"
-          }}></div>
+            display: "inline-block",
+            opacity: 1,
+            border: "none",
+            outline: "none",
+            boxShadow: "none",
+            filter: "none",
+            pointerEvents: "none"
+          }}></span>
         </button>
         </div>
       </div>
