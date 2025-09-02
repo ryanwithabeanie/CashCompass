@@ -160,8 +160,36 @@ router.get('/summary', auth, async (req, res) => {
     });
 
     if (!response.ok) {
+      // Get more detailed error information
+      const errorText = await response.text();
+      console.error("AI API error:", response.status, response.statusText, errorText);
+      
       // Graceful fallbacks
       if (response.status === 429) {
+        // Parse the error response to get more details
+        let errorMessage = "AI summary temporarily unavailable (rate limited). Please try again in a moment.";
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error && errorData.error.message) {
+            console.log("Detailed error:", errorData.error.message);
+            // Check the specific error metadata
+            if (errorData.error.metadata && errorData.error.metadata.raw) {
+              const rawError = errorData.error.metadata.raw.toLowerCase();
+              if (rawError.includes('temporarily rate-limited upstream')) {
+                errorMessage = "AI summary temporarily unavailable due to upstream rate limiting. Please try again in a few minutes.";
+              } else if (rawError.includes('daily limit') || rawError.includes('daily quota')) {
+                errorMessage = "AI summary unavailable (free daily limit reached). Try again tomorrow.";
+              } else if (rawError.includes('rate limit')) {
+                errorMessage = "AI summary temporarily unavailable (rate limited). Please try again shortly.";
+              }
+            } else if (errorData.error.message.toLowerCase().includes('daily')) {
+              errorMessage = "AI summary unavailable (free daily limit reached). Try again tomorrow.";
+            }
+          }
+        } catch (parseError) {
+          console.error("Could not parse error response:", parseError);
+        }
+        
         return res.json({
           currentWeek: {
             income: thisWeek.income,
@@ -174,11 +202,10 @@ router.get('/summary', auth, async (req, res) => {
             savings: lastWeek.income - lastWeek.expense
           },
           balance,
-          aiComment: "AI summary unavailable (free daily limit reached)."
+          aiComment: errorMessage
         });
       }
-      const errorText = await response.text();
-      console.error("AI error:", response.status, errorText);
+      
       return res.json({
         currentWeek: {
           income: thisWeek.income,

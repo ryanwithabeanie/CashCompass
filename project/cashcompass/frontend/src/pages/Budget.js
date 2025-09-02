@@ -1,10 +1,9 @@
-import React from 'react';
+import BudgetCard from '../BudgetCard';
 
-function Budget() {
+function Budget({ user }) {
   return (
-    <div>
-      <h2>Budget Page</h2>
-      <p>Track and manage your budget here!</p>
+    <div style={{ width: '100%', marginBottom: '2rem' }}>
+      <BudgetCard user={user} />
     </div>
   );
 }

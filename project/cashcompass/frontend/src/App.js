@@ -1,18 +1,16 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import AddEntryForm from './AddEntryForm';
 import { fetchEntries } from './services/entryService';
 import bgImage from './assets/bg.jpg';
 import { fetchSummary } from './services/summaryService';
 import CalendarCard from './CalendarCard';
 import { validateToken, clearAuth } from './services/authService';
-import { marked } from 'marked';
 import Login from "./Login";
-import { Pie, Line } from 'react-chartjs-2';
 import { Chart, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import FriendRequestsCard from './FriendRequestsCard';
-import ChatCard from './ChatCard';
-import BudgetCard from './BudgetCard';
 import Planner from './pages/Planner';
+import Budget from './pages/Budget';
+import Dynamics from './pages/Dynamics';
+import Friends from './pages/Friends';
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -286,6 +284,11 @@ function App() {
     }
   };
 
+  // -------------------- Navigation Functions (Optimized with useCallback) --------------------
+  const navigateToPage = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
+
   // -------------------- Derived/UI data --------------------
   const pieData = useMemo(() => {
     return summary?.currentWeek ? {
@@ -487,81 +490,77 @@ function App() {
           justifyContent: 'center'
         }}>
           <button 
-            onClick={() => setCurrentPage('home')}
+            onClick={() => navigateToPage('home')}
             style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'home' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'home' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: currentPage === 'home' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'home' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
-            color: '#fff',
+            color: currentPage === 'home' ? '#222' : '#fff',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(8px)'
           }}>
             Home
           </button>
-          <button style={{
+          <button 
+            onClick={() => navigateToPage('friends')}
+            style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: currentPage === 'friends' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'friends' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
-            color: '#fff',
+            color: currentPage === 'friends' ? '#222' : '#fff',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(8px)'
           }}>
             Friends
           </button>
-          <button style={{
+          <button 
+            onClick={() => navigateToPage('budget')}
+            style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: currentPage === 'budget' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'budget' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
-            color: '#fff',
+            color: currentPage === 'budget' ? '#222' : '#fff',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(8px)'
           }}>
             Budget
           </button>
-          <button style={{
+          <button 
+            onClick={() => navigateToPage('dynamics')}
+            style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: currentPage === 'dynamics' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'dynamics' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
-            color: '#fff',
+            color: currentPage === 'dynamics' ? '#222' : '#fff',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(8px)'
           }}>
             Dynamics
           </button>
           <button 
-            onClick={() => setCurrentPage('planner')}
+            onClick={() => navigateToPage('planner')}
             style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: currentPage === 'planner' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-            border: currentPage === 'planner' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.2)',
+            backgroundColor: currentPage === 'planner' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+            border: currentPage === 'planner' ? '2px solid rgba(52, 152, 219, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
-            color: '#fff',
+            color: currentPage === 'planner' ? '#222' : '#fff',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 'bold',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(8px)'
           }}>
             Planner
           </button>
@@ -571,187 +570,26 @@ function App() {
       {/* Conditional Page Content */}
       {currentPage === 'home' && (
         <>
-          {/* Summary Section with Generate Button */}
-      <div style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        padding: '1rem',
-        marginBottom: '2rem',
-        borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        position: 'relative'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ margin: 0 }}>Weekly Summary</h2>
-          <button
-            onClick={generateNewSummary}
-            disabled={summaryLoading || isGeneratingSummary}
-            style={{
-              background: (summaryLoading || isGeneratingSummary) 
-                ? "rgba(52, 152, 219, 0.1)" 
-                : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
-              color: (summaryLoading || isGeneratingSummary) ? "#222" : "#fff",
-              border: "1px solid rgba(52, 152, 219, 0.2)",
-              padding: "0.7rem 1.5rem",
-              borderRadius: "12px",
-              fontWeight: "bold",
-              cursor: summaryLoading || isGeneratingSummary ? "not-allowed" : "pointer",
-              opacity: summaryLoading || isGeneratingSummary ? 0.7 : 1,
-              transition: "all 0.2s",
-              backdropFilter: "blur(8px)"
-            }}
-          >
-            {summaryLoading ? "Generating..." : summary ? "Generate Another Summary" : "Generate Summary"}
-          </button>
-        </div>
-
-        {summaryLoading && (
-          <div style={{
-            padding: '1rem',
-            fontStyle: 'italic',
-            textAlign: 'center'
-          }}>
-            Generating Summary...
-          </div>
-        )}
-        
-        {summaryError && (
-          <div style={{
-            backgroundColor: '#fff3f3',
-            padding: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #ffcccc',
-            color: '#cc0000',
-            fontStyle: 'italic',
-            marginBottom: '1rem'
-          }}>
-            {summaryError}
-          </div>
-        )}
-        
-        {summary && !summaryLoading && (
+          {/* Summary Section with Generate Button - Moved to Dynamics page */}
+          {/* 
           <div style={{
             backgroundColor: 'rgba(255, 255, 255, 0.1)',
             padding: '1rem',
+            marginBottom: '2rem',
             borderRadius: '12px',
-            position: 'relative',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
-          }}>
-            <div style={{ display: 'flex', gap: '2rem' }}>
-              <div style={{ flex: 1 }}>
-                <h3>This Week</h3>
-                <p><strong>Income:</strong> ${summary.currentWeek?.income ?? 0}</p>
-                <p><strong>Expense:</strong> ${summary.currentWeek?.expense ?? 0}</p>
-                <p><strong>Savings:</strong> ${summary.currentWeek?.savings ?? 0}</p>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3>Last Week</h3>
-                <p><strong>Income:</strong> ${summary.previousWeek?.income ?? 0}</p>
-                <p><strong>Expense:</strong> ${summary.previousWeek?.expense ?? 0}</p>
-                <p><strong>Savings:</strong> ${summary.previousWeek?.savings ?? 0}</p>
-              </div>
-            </div>
-            {/* AI Insight */}
-            {summary.aiComment && (
-              <div
-                style={{
-                  marginTop: '1.5rem',
-                  backgroundColor: '#f6f8fa',
-                  padding: '1rem',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  color: '#333',
-                  fontSize: '0.95rem',
-                  lineHeight: '1.6',
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: marked(summary.aiComment),
-                }}
-              />
-            )}
-          </div>
-        )}
-      </div>
-
-      {summary && !summaryLoading && (
-        <div style={{
-          display: 'flex',
-          gap: '2rem',
-          justifyContent: 'center',
-          marginBottom: '2rem',
-          flexWrap: 'wrap'
-        }}>
-          {/* Pie Chart */}
-          <div style={{
-            flex: '1 1 320px',
-            minWidth: 320,
-            maxWidth: 400,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             backdropFilter: 'blur(12px)',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
-          }}>
-            <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Pie Chart</h3>
-            <div style={{ width: 300, height: 300 }}>
-              <Pie
-                data={pieData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { position: 'bottom' }
-                  }
-                }}
-              />
-            </div>
-          </div>
-          {/* Line Chart */}
-          <div style={{
-            flex: '1 1 420px',
-            minWidth: 320,
-            maxWidth: 500,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            backdropFilter: 'blur(12px)',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
+            position: 'relative'
           }}>
-            <h3 style={{ color: '#3498db', marginBottom: '1rem' }}>Linear Graph</h3>
-            <div style={{ width: 400, height: 300 }}>
-              <Line
-                data={lineData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { position: 'top' },
-                  },
-                  scales: {
-                    x: { title: { display: true, text: 'Week' } },
-                    y: { title: { display: true, text: 'Amount ($)' }, beginAtZero: true }
-                  }
-                }}
-              />
-            </div>
+            Weekly Summary content moved to Dynamics page
           </div>
-        </div>
-      )}
+          */}
 
       {/* Budget Card */}
-      <div style={{ width: '100%', marginBottom: '2rem' }}>
+      {/* <div style={{ width: '100%', marginBottom: '2rem' }}>
         <BudgetCard user={user} />
-      </div>
+      </div> */}
 
       {/* Weekly Planner Card */}
       {/* <div style={{ width: '100%', marginBottom: '2rem' }}>
@@ -783,17 +621,6 @@ function App() {
             marginBottom: '1rem'
           }}>
             <AddEntryForm onEntryAdded={() => reloadData(false)} />
-          </div>
-          {/* Friend Requests */}
-          <div style={{
-            padding: '1rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            backdropFilter: 'blur(12px)'
-          }}>
-            <FriendRequestsCard user={user} />
           </div>
         </div>
 
@@ -967,29 +794,40 @@ function App() {
           </ul>
         </div>
       </div>
-
-      {/* Chat Section */}
-      {friends.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
-            {friends.map(friend => (
-              <ChatCard 
-                key={friend._id} 
-                user={user} 
-                friend={friend}
-                isExpanded={friend._id === expandedChatId}
-                onToggleExpand={(expanded) => setExpandedChatId(expanded ? friend._id : null)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
         </>
       )}
 
       {/* Planner Page */}
       {currentPage === 'planner' && (
         <Planner />
+      )}
+
+      {/* Budget Page */}
+      {currentPage === 'budget' && (
+        <Budget user={user} />
+      )}
+
+      {/* Friends Page */}
+      {currentPage === 'friends' && (
+        <Friends 
+          user={user}
+          friends={friends}
+          expandedChatId={expandedChatId}
+          setExpandedChatId={setExpandedChatId}
+        />
+      )}
+
+      {/* Dynamics Page */}
+      {currentPage === 'dynamics' && (
+        <Dynamics 
+          summary={summary}
+          summaryLoading={summaryLoading}
+          summaryError={summaryError}
+          isGeneratingSummary={isGeneratingSummary}
+          generateNewSummary={generateNewSummary}
+          pieData={pieData}
+          lineData={lineData}
+        />
       )}
     </div>
   );

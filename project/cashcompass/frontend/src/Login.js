@@ -79,8 +79,14 @@ export default function Login({ onLoggedIn }) {
           backdropFilter: "blur(12px)",
         }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-          <img src={logo} alt="CashCompass Logo" style={{ width: '120px', height: '120px', marginBottom: '0.5rem' }} />
+        <div style={{ textAlign: 'center', marginBottom: '0.5rem', userSelect: 'none' }}>
+          <img src={logo} alt="CashCompass Logo" style={{ 
+            width: '120px', 
+            height: '120px', 
+            marginBottom: '0.5rem',
+            userSelect: 'none',
+            pointerEvents: 'none'
+          }} />
         </div>
         <h2 style={{ marginBottom: "1rem", color: "#3498db", textAlign: 'center' }}>
           {mode === "login" ? "Login" : "Register"}
