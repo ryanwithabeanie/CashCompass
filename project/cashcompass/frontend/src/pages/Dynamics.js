@@ -10,6 +10,12 @@ function Dynamics({
   pieData, 
   lineData 
 }) {
+  
+  const handleDownloadSummaryPDF = () => {
+    // TODO: Implement PDF download functionality for weekly summary
+    console.log('Download Weekly Summary PDF');
+    alert('PDF download functionality will be implemented soon!');
+  };
   return (
     <div style={{ width: '100%' }}>
       {/* Summary Section with Generate Button */}
@@ -23,28 +29,52 @@ function Dynamics({
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         position: 'relative'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <h2 style={{ margin: '0', color: '#222', textAlign: 'left', fontSize: '1.5rem', fontWeight: '600', userSelect: 'none' }}>Weekly Summary</h2>
-          <button
-            onClick={generateNewSummary}
-            disabled={summaryLoading || isGeneratingSummary}
-            style={{
-              background: (summaryLoading || isGeneratingSummary) 
-                ? "rgba(52, 152, 219, 0.1)" 
-                : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
-              color: (summaryLoading || isGeneratingSummary) ? "#222" : "#fff",
-              border: "1px solid rgba(52, 152, 219, 0.2)",
-              padding: "0.7rem 1.5rem",
-              borderRadius: "12px",
-              fontWeight: "bold",
-              cursor: summaryLoading || isGeneratingSummary ? "not-allowed" : "pointer",
-              opacity: summaryLoading || isGeneratingSummary ? 0.7 : 1,
-              transition: "all 0.2s",
-              backdropFilter: "blur(8px)"
-            }}
-          >
-            {summaryLoading ? "Generating..." : summary ? "Generate Another Summary" : "Generate Summary"}
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={generateNewSummary}
+              disabled={summaryLoading || isGeneratingSummary}
+              style={{
+                background: (summaryLoading || isGeneratingSummary) 
+                  ? "rgba(52, 152, 219, 0.1)" 
+                  : 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
+                color: (summaryLoading || isGeneratingSummary) ? "#222" : "#fff",
+                border: "1px solid rgba(52, 152, 219, 0.2)",
+                padding: "0.7rem 1.5rem",
+                borderRadius: "12px",
+                fontWeight: "bold",
+                cursor: summaryLoading || isGeneratingSummary ? "not-allowed" : "pointer",
+                opacity: summaryLoading || isGeneratingSummary ? 0.7 : 1,
+                transition: "all 0.2s",
+                backdropFilter: "blur(8px)"
+              }}
+            >
+              {summaryLoading ? "Generating..." : summary ? "Generate Another Summary" : "Generate Summary"}
+            </button>
+            
+            {/* Download Summary PDF Button - Only visible when summary exists */}
+            {summary && !summaryLoading && (
+              <button
+                onClick={handleDownloadSummaryPDF}
+                style={{
+                  background: 'linear-gradient(90deg, rgba(46, 204, 113, 0.9) 0%, rgba(26, 188, 156, 0.9) 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '0.7rem 1.5rem',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s ease',
+                  backdropFilter: 'blur(8px)'
+                }}
+              >
+                Download Summary PDF
+              </button>
+            )}
+          </div>
         </div>
 
         {summaryLoading && (

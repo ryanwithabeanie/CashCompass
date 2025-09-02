@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Utility function to handle API calls
 const api = {
@@ -93,6 +95,7 @@ export default function WeeklyPlannerCard() {
   }, []);
 
   const [saveStatus, setSaveStatus] = useState('');
+  const [showDownloadButton, setShowDownloadButton] = useState(false);
   
   const handleChange = (id, field, value) => {
     setPlannerData(prevData => {
@@ -129,12 +132,97 @@ export default function WeeklyPlannerCard() {
 
       await api.updatePlannerData(dataToSend);
       setSaveStatus('Changes saved successfully!');
+      setShowDownloadButton(true); // Show download button after successful save
       setTimeout(() => setSaveStatus(''), 3000); // Clear message after 3 seconds
     } catch (err) {
       console.error('Failed to save planner data:', err);
       setSaveStatus('Failed to save changes. Please try again.');
       setTimeout(() => setSaveStatus(''), 3000);
     }
+  };
+
+  const handleDownloadPlannerPDF = () => {
+    // Create new PDF document
+    const doc = new jsPDF();
+    
+    // Set document title
+    doc.setFontSize(16);
+    doc.text('Weekly Expense Planner', 20, 20);
+    
+    // Add current date
+    doc.setFontSize(10);
+    const currentDate = new Date().toLocaleDateString();
+    doc.text(`Generated on: ${currentDate}`, 20, 30);
+    
+    // Prepare table data
+    const tableHeaders = ['Category', 'Planned Budget', 'Actual Spent', 'Net Savings', 'Notes'];
+    const tableData = plannerData.map(item => [
+      item.name,
+      `$${item.planned}`,
+      `$${item.actual}`,
+      `$${item.difference}`,
+      item.notes || '-'
+    ]);
+    
+    // Create table using autoTable plugin
+    autoTable(doc, {
+      head: [tableHeaders],
+      body: tableData,
+      startY: 40,
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
+        textColor: [0, 0, 0], // Black text
+        lineColor: [0, 0, 0], // Black borders
+        lineWidth: 0.1
+      },
+      headStyles: {
+        fillColor: [255, 255, 255], // White background
+        textColor: [0, 0, 0], // Black text
+        fontStyle: 'bold'
+      },
+      bodyStyles: {
+        fillColor: [255, 255, 255] // White background
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245] // Light gray for alternate rows
+      }
+    });
+    
+    // Calculate totals and add summary
+    const totalPlanned = plannerData.reduce((sum, item) => sum + item.planned, 0);
+    const totalActual = plannerData.reduce((sum, item) => sum + item.actual, 0);
+    const totalDifference = totalPlanned - totalActual;
+    
+    // Add summary section
+    const finalY = doc.lastAutoTable.finalY + 20;
+    doc.setFontSize(12);
+    doc.text('Summary:', 20, finalY);
+    
+    doc.setFontSize(10);
+    doc.text(`Total Planned Budget: $${totalPlanned}`, 20, finalY + 10);
+    doc.text(`Total Actual Spent: $${totalActual}`, 20, finalY + 20);
+    doc.text(`Net Result: $${totalDifference}`, 20, finalY + 30);
+    
+    // Add financial comment
+    let comment = '';
+    if (totalDifference > 0) {
+      comment = `Congratulations! You are saving $${totalDifference}. Keep up the great work!`;
+    } else if (totalDifference < 0) {
+      comment = `You have overspent by $${Math.abs(totalDifference)}. Consider reviewing your expenses.`;
+    } else {
+      comment = 'You have perfectly balanced your budget!';
+    }
+    
+    doc.setFontSize(10);
+    doc.text('Financial Status:', 20, finalY + 50);
+    
+    // Split long comment text across multiple lines
+    const splitComment = doc.splitTextToSize(comment, 170);
+    doc.text(splitComment, 20, finalY + 60);
+    
+    // Save the PDF
+    doc.save('Weekly-Expense-Planner.pdf');
   };
 
   // Calculate total savings/overspending
@@ -355,7 +443,8 @@ export default function WeeklyPlannerCard() {
           justifyContent: 'center',
           alignItems: 'center',
           marginTop: '1.5rem',
-          gap: '1rem'
+          gap: '1rem',
+          flexWrap: 'wrap'
         }}>
           <button
             onClick={handleSaveChanges}
@@ -374,6 +463,28 @@ export default function WeeklyPlannerCard() {
         >
           Save Changes
         </button>
+        
+        {/* Download PDF Button - Only visible after successful save */}
+        {showDownloadButton && (
+          <button
+            onClick={handleDownloadPlannerPDF}
+            style={{
+              background: 'linear-gradient(90deg, rgba(46, 204, 113, 0.9) 0%, rgba(26, 188, 156, 0.9) 100%)',
+              color: '#fff',
+              border: 'none',
+              padding: '0.8rem 1.5rem',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Download Planner PDF
+          </button>
+        )}
+        
         {saveStatus && (
           <span style={{
             color: saveStatus.includes('success') ? '#1e8449' : saveStatus.includes('Failed') ? '#e74c3c' : '#3498db',
