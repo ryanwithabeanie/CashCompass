@@ -234,6 +234,16 @@ function App() {
           setSummary(null);
           return;
         }
+
+        // Also check if the aiComment indicates a rate limit or API error
+        if (summaryData.aiComment && 
+            (summaryData.aiComment.toLowerCase().includes('daily limit') ||
+             summaryData.aiComment.toLowerCase().includes('rate limit') ||
+             summaryData.aiComment.toLowerCase().includes('unavailable'))) {
+          setSummaryError(summaryData.aiComment);
+          setSummary(null);
+          return;
+        }
         
         setSummary(summaryData);
         
