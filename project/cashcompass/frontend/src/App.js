@@ -440,8 +440,27 @@ function App() {
           </div>
         </div>
 
-        {/* Logout Button */}
-        <button
+        {/* Welcome User and Logout Section */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem'
+        }}>
+          {user && (
+            <span style={{
+              color: '#ffffff',
+              fontSize: '1.1rem',
+              fontWeight: '400',
+              opacity: '0.9',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+              userSelect: 'none'
+            }}>
+              Welcome, {user.username || user.email}!
+            </span>
+          )}
+
+          {/* Logout Button */}
+          <button
           onClick={() => { 
             clearAuth(); 
             setUser(null);
@@ -470,6 +489,7 @@ function App() {
         >
           Logout
         </button>
+        </div>
       </div>
 
       {/* Dashboard Navigation */}
