@@ -106,6 +106,25 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// GET /api/auth/me - Get current user info
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    return res.json({
+      id: user._id,
+      username: user.username,
+      email: user.email
+    });
+  } catch (err) {
+    console.error('Get user info error:', err);
+    return res.status(500).json({ error: "Server error: " + err.message });
+  }
+});
+
 // PUT /api/auth/update-profile - Update user profile
 router.put("/update-profile", auth, async (req, res) => {
   try {

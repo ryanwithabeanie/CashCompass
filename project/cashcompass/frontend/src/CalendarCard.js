@@ -3,7 +3,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './CalendarCard.css';
 
-export default function CalendarCard({ entries = [] }) {
+export default function CalendarCard({ entries = [], onDateClick }) {
   console.log('CalendarCard received entries:', entries);
 
   // Helper function to format date consistently
@@ -82,6 +82,7 @@ export default function CalendarCard({ entries = [] }) {
       <div className="calendar-wrapper">
         <Calendar
           className="financial-calendar"
+          onClickDay={onDateClick}
           tileClassName={({ date, view }) => {
             if (view === 'month') {
               return getTileClass(date);

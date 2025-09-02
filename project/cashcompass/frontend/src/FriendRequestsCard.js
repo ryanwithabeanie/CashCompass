@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function FriendRequestsCard({ user }) {
+function FriendRequestsCard({ user, refreshFriends }) {
   const [sent, setSent] = useState([]);
   const [received, setReceived] = useState([]);
   const [email, setEmail] = useState("");
@@ -47,8 +47,15 @@ function FriendRequestsCard({ user }) {
       body: JSON.stringify({ requestId: id })
     });
     const data = await res.json();
-    if (data.success) setMsg("Friend added!");
-    else setMsg(data.error || "Failed to accept");
+    if (data.success) {
+      setMsg("Friend added!");
+      // Refresh the friends list in the parent component
+      if (refreshFriends) {
+        refreshFriends();
+      }
+    } else {
+      setMsg(data.error || "Failed to accept");
+    }
   };
 
   // Decline friend request

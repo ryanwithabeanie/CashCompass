@@ -2,7 +2,7 @@ import React from 'react';
 import FriendRequestsCard from '../FriendRequestsCard';
 import ChatCard from '../ChatCard';
 
-function Friends({ user, friends, expandedChatId, setExpandedChatId }) {
+function Friends({ user, friends, expandedChatId, setExpandedChatId, refreshFriends }) {
   return (
     <div style={{
       display: 'flex',
@@ -25,7 +25,7 @@ function Friends({ user, friends, expandedChatId, setExpandedChatId }) {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           backdropFilter: 'blur(12px)'
         }}>
-          <FriendRequestsCard user={user} />
+          <FriendRequestsCard user={user} refreshFriends={refreshFriends} />
         </div>
 
         {/* Your Friends Card */}

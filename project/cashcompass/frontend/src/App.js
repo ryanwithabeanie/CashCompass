@@ -46,6 +46,8 @@ function App() {
     confirmPassword: '',
     currentPassword: ''
   });
+  const [highlightedEntries, setHighlightedEntries] = useState([]);
+  const [highlightTimeout, setHighlightTimeout] = useState(null);
 
   // -------------------- Effects (always at top level) --------------------
   // Initialize auth state from localStorage and validate token
@@ -71,14 +73,27 @@ function App() {
           localStorage.removeItem("lastSummaryUserId");
           localStorage.removeItem("lastSummaryTime");
         } else {
-          // Get user info from the token
-          const token = localStorage.getItem("token");
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-          const decoded = JSON.parse(jsonPayload);
+          // Fetch complete user data from the server
+          try {
+            const res = await fetch('http://localhost:5000/api/auth/me', {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            
+            if (res.ok) {
+              const userData = await res.json();
+              setUser(userData);
+              localStorage.setItem("user", JSON.stringify(userData));
+            } else {
+              throw new Error('Failed to fetch user data');
+            }
+          } catch (err) {
+            console.error('Error fetching user data:', err);
+            clearAuth();
+            setUser(null);
+          }
           
-          setUser(decoded);
           // Clear any previous summary data
           setSummary(null);
           localStorage.removeItem("lastSummary");
@@ -186,6 +201,24 @@ function App() {
   }, [settingsPanelOpen]);
 
   // -------------------- Functions --------------------
+  
+  // Function to load/refresh friends list
+  const loadFriends = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/chat/friends", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setFriends(data.friends || []);
+    } catch (error) {
+      console.error('Error loading friends:', error);
+      setFriends([]);
+    }
+  };
+
   const generateNewSummary = async () => {
     setIsGeneratingSummary(true);
     setSummaryLoading(true);
@@ -410,6 +443,57 @@ function App() {
     } catch (error) {
       console.error('Error deleting user:', error);
       alert('Failed to delete account. Please try again.');
+    }
+  };
+
+  // Handle calendar date click to highlight entries
+  const handleDateClick = (date) => {
+    // Clear any existing timeout
+    if (highlightTimeout) {
+      clearTimeout(highlightTimeout);
+    }
+
+    // Format date to match entry dates
+    const formatDateToString = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const clickedDateStr = formatDateToString(date);
+    
+    // Find entries that match the clicked date
+    const matchingEntries = entries.filter(entry => {
+      if (!entry.date) return false;
+      const entryDateStr = formatDateToString(entry.date);
+      return entryDateStr === clickedDateStr;
+    });
+
+    if (matchingEntries.length > 0) {
+      // Highlight the matching entries
+      setHighlightedEntries(matchingEntries.map(entry => entry._id));
+      
+      // Scroll to the first highlighted entry after a short delay to ensure rendering
+      setTimeout(() => {
+        const firstEntryId = matchingEntries[0]._id;
+        const entryElement = document.getElementById(`entry-${firstEntryId}`);
+        if (entryElement) {
+          entryElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }, 100);
+      
+      // Set timeout to clear highlights after 3 seconds
+      const timeout = setTimeout(() => {
+        setHighlightedEntries([]);
+        setHighlightTimeout(null);
+      }, 3000);
+      
+      setHighlightTimeout(timeout);
     }
   };
 
@@ -781,7 +865,7 @@ function App() {
 
       {/* Calendar Card */}
       <div style={{ width: '100%', marginBottom: '2rem' }}>
-        <CalendarCard entries={entries} />
+        <CalendarCard entries={entries} onDateClick={handleDateClick} />
       </div>
 
       {/* Main Content */}
@@ -873,19 +957,31 @@ function App() {
                   (entry.note || '').toLowerCase().includes(search.toLowerCase())
                 )
               )
-              .map((entry) => (
+              .map((entry) => {
+                const isHighlighted = highlightedEntries.includes(entry._id);
+                return (
                 <li
                   key={entry._id}
+                  id={`entry-${entry._id}`}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: '1rem',
                     padding: '1rem',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    border: isHighlighted 
+                      ? '2px solid rgba(52, 152, 219, 0.8)' 
+                      : '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(12px)'
+                    backgroundColor: isHighlighted 
+                      ? 'rgba(52, 152, 219, 0.2)' 
+                      : 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(12px)',
+                    transform: isHighlighted ? 'scale(1.02)' : 'scale(1)',
+                    transition: 'all 0.3s ease',
+                    boxShadow: isHighlighted 
+                      ? '0 8px 20px rgba(52, 152, 219, 0.3)' 
+                      : '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 >
                   {editingEntry === entry._id ? (
@@ -973,7 +1069,8 @@ function App() {
                     </div>
                   )}
                 </li>
-              ))}
+              );
+              })}
           </ul>
         </div>
       </div>
@@ -997,6 +1094,7 @@ function App() {
           friends={friends}
           expandedChatId={expandedChatId}
           setExpandedChatId={setExpandedChatId}
+          refreshFriends={loadFriends}
         />
       )}
 

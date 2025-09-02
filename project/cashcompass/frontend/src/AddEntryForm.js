@@ -45,7 +45,16 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
       });
 
       if (res.ok) {
-        setMessage("Entry added successfully!");
+        const response = await res.json();
+        const isRecurring = entry.isRecurring;
+        const count = response.count || 1;
+        
+        if (isRecurring && count > 1) {
+          setMessage(`${count} recurring entries added successfully!`);
+        } else {
+          setMessage("Entry added successfully!");
+        }
+        
         // Clear success message after 3 seconds
         setTimeout(() => {
           setMessage('');
@@ -201,27 +210,43 @@ function AddEntryForm({ onEntryAdded }) {  // 🔹 allow parent to refresh list
         </div>
 
         {entry.isRecurring && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <label style={{ width: '80px' }}>Period:</label>
-            <select
-              name="recurringPeriod"
-              value={entry.recurringPeriod}
-              onChange={handleChange}
-              style={{ 
-                flex: 1,
-                padding: '0.5rem',
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                backdropFilter: 'blur(12px)',
-                color: '#222',
-                outline: 'none'
-              }}
-            >
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <label style={{ width: '80px' }}>Period:</label>
+              <select
+                name="recurringPeriod"
+                value={entry.recurringPeriod}
+                onChange={handleChange}
+                style={{ 
+                  flex: 1,
+                  padding: '0.5rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  backdropFilter: 'blur(12px)',
+                  color: '#222',
+                  outline: 'none'
+                }}
+              >
+                <option value="monthly">Monthly (rest of year)</option>
+                <option value="yearly">Yearly (this year + next year)</option>
+              </select>
+            </div>
+            
+            <div style={{
+              padding: '0.75rem',
+              backgroundColor: 'rgba(52, 152, 219, 0.1)',
+              border: '1px solid rgba(52, 152, 219, 0.2)',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              color: '#222'
+            }}>
+              <strong>Info:</strong> {entry.recurringPeriod === 'monthly' 
+                ? `This will create entries for each remaining month of ${new Date().getFullYear()} starting from the selected date.`
+                : `This will create an entry for the selected date this year and the same date next year.`
+              }
+            </div>
+          </>
         )}
 
         {/* Submit */}

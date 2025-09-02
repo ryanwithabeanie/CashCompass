@@ -13,31 +13,92 @@ router.post('/add', auth, async (req, res) => {
       return res.status(400).json({ error: "Amount, category, and type are required" });
     }
 
-    // Calculate next due date for recurring expenses
-    let nextDueDate = null;
-    if (isRecurring && type === 'expense') {
-      const startDate = new Date(date);
+    const startDate = new Date(date || new Date());
+    const entries = [];
+
+    if (isRecurring) {
+      const currentYear = new Date().getFullYear();
+      
       if (recurringPeriod === 'monthly') {
-        nextDueDate = new Date(startDate.setMonth(startDate.getMonth() + 1));
+        // Create entries for each remaining month of the current year
+        const startMonth = startDate.getMonth();
+        const startDay = startDate.getDate();
+        
+        for (let month = startMonth; month < 12; month++) {
+          const entryDate = new Date(currentYear, month, startDay);
+          
+          // Skip if the date doesn't exist (e.g., Feb 31)
+          if (entryDate.getMonth() !== month) {
+            continue;
+          }
+          
+          entries.push({
+            amount,
+            category,
+            type,
+            note: note || '',
+            date: entryDate,
+            user: req.user.id,
+            isRecurring: true,
+            recurringPeriod: 'monthly',
+            nextDueDate: null
+          });
+        }
       } else if (recurringPeriod === 'yearly') {
-        nextDueDate = new Date(startDate.setFullYear(startDate.getFullYear() + 1));
+        // Create entry for this year and next year
+        entries.push({
+          amount,
+          category,
+          type,
+          note: note || '',
+          date: startDate,
+          user: req.user.id,
+          isRecurring: true,
+          recurringPeriod: 'yearly',
+          nextDueDate: null
+        });
+        
+        // Add entry for next year
+        const nextYearDate = new Date(startDate);
+        nextYearDate.setFullYear(nextYearDate.getFullYear() + 1);
+        
+        entries.push({
+          amount,
+          category,
+          type,
+          note: note || '',
+          date: nextYearDate,
+          user: req.user.id,
+          isRecurring: true,
+          recurringPeriod: 'yearly',
+          nextDueDate: null
+        });
       }
+    } else {
+      // Non-recurring entry
+      entries.push({
+        amount,
+        category,
+        type,
+        note: note || '',
+        date: startDate,
+        user: req.user.id,
+        isRecurring: false,
+        recurringPeriod: null,
+        nextDueDate: null
+      });
     }
 
-    const newEntry = new Entry({
-      amount,
-      category,
-      type,
-      note: note || '',
-      date: date || new Date(),
-      user: req.user.id,
-      isRecurring: isRecurring && type === 'expense', // Only allow recurring for expenses
-      recurringPeriod: isRecurring && type === 'expense' ? recurringPeriod : null,
-      nextDueDate
+    // Save all entries
+    const savedEntries = await Entry.insertMany(entries);
+    
+    res.status(201).json({ 
+      message: isRecurring 
+        ? `${savedEntries.length} recurring entries created successfully` 
+        : "Entry saved successfully", 
+      entries: savedEntries,
+      count: savedEntries.length
     });
-
-    const savedEntry = await newEntry.save();
-    res.status(201).json({ message: "Entry saved successfully", entry: savedEntry });
   } catch (err) {
     console.error("Add entry error:", err);
     res.status(400).json({ error: err.message });
