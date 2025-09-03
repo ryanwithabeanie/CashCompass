@@ -8,13 +8,13 @@ const auth = require('../middleware/auth');
 router.post('/set', auth, async (req, res) => {
   const { amount } = req.body;
   try {
-    let budget = await Budget.findOne({ user: req.user.id });
+    let budget = await Budget.findOne({ user: req.user._id });
     if (budget) {
       budget.amount = amount;
       budget.notified = false;
       await budget.save();
     } else {
-      budget = await Budget.create({ user: req.user.id, amount });
+      budget = await Budget.create({ user: req.user._id, amount });
     }
     res.json(budget);
   } catch (err) {
@@ -25,9 +25,9 @@ router.post('/set', auth, async (req, res) => {
 // Get budget and progress
 router.get('/', auth, async (req, res) => {
   try {
-    const budget = await Budget.findOne({ user: req.user.id });
+    const budget = await Budget.findOne({ user: req.user._id });
     if (!budget) return res.json({ amount: 0, progress: 0 });
-    const entries = await Entry.find({ user: req.user.id, type: 'expense' });
+    const entries = await Entry.find({ user: req.user._id, type: 'expense' });
     const totalExpense = entries.reduce((sum, e) => sum + e.amount, 0);
     const progress = budget.amount > 0 ? totalExpense / budget.amount : 0;
     // Notify if close to exceeding budget (e.g., >90%)

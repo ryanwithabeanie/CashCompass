@@ -38,7 +38,7 @@ router.post('/add', auth, async (req, res) => {
             type,
             note: note || '',
             date: entryDate,
-            user: req.user.id,
+            user: req.user._id,
             isRecurring: true,
             recurringPeriod: 'monthly',
             nextDueDate: null
@@ -52,7 +52,7 @@ router.post('/add', auth, async (req, res) => {
           type,
           note: note || '',
           date: startDate,
-          user: req.user.id,
+          user: req.user._id,
           isRecurring: true,
           recurringPeriod: 'yearly',
           nextDueDate: null
@@ -68,7 +68,7 @@ router.post('/add', auth, async (req, res) => {
           type,
           note: note || '',
           date: nextYearDate,
-          user: req.user.id,
+          user: req.user._id,
           isRecurring: true,
           recurringPeriod: 'yearly',
           nextDueDate: null
@@ -82,7 +82,7 @@ router.post('/add', auth, async (req, res) => {
         type,
         note: note || '',
         date: startDate,
-        user: req.user.id,
+        user: req.user._id,
         isRecurring: false,
         recurringPeriod: null,
         nextDueDate: null
@@ -123,7 +123,7 @@ router.get('/test', (req, res) => {
 // Delete an entry (protected)
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const deleted = await Entry.findOneAndDelete({ _id: req.params.id, user: req.user.id }); // <-- 'user'
+    const deleted = await Entry.findOneAndDelete({ _id: req.params.id, user: req.user._id }); // <-- 'user'
     if (!deleted) return res.status(404).json({ error: 'Entry not found or not yours' });
     res.json({ message: 'Entry deleted successfully' });
   } catch (err) {
@@ -151,7 +151,7 @@ router.put('/:id', auth, async (req, res) => {
 router.get('/summary', auth, async (req, res) => {
   try {
     // <-- filter by 'user' (not userId)
-    const entries = await Entry.find({ user: req.user.id });
+    const entries = await Entry.find({ user: req.user._id });
 
     const now = new Date();
 

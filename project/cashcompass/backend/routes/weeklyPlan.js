@@ -6,7 +6,7 @@ const auth = require('../middleware/auth');
 // Get user's weekly plan entries
 router.get('/', auth, async (req, res) => {
     try {
-        const entries = await WeeklyPlan.find({ userId: req.user.id });
+        const entries = await WeeklyPlan.find({ userId: req.user._id });
         res.json(entries);
     } catch (err) {
         console.error(err);
@@ -28,7 +28,7 @@ router.post('/update', auth, async (req, res) => {
             
             // Find existing entry or create new one
             let planEntry = await WeeklyPlan.findOne({
-                userId: req.user.id,
+                userId: req.user._id,
                 category: category
             });
 
@@ -42,7 +42,7 @@ router.post('/update', auth, async (req, res) => {
             } else {
                 // Create new entry
                 planEntry = new WeeklyPlan({
-                    userId: req.user.id,
+                    userId: req.user._id,
                     category,
                     icon,
                     planned,

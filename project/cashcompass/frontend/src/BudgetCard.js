@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { setBudget, getBudget } from './services/budgetService';
+import { getBaseButtonStyle, getButtonHoverHandlers, buttonColors } from './utils/buttonStyles';
 
 export default function BudgetCard({ user }) {
   const [budget, setBudgetAmount] = useState('');
@@ -123,31 +124,8 @@ export default function BudgetCard({ user }) {
         </div>
         <button
           type="submit"
-          style={{
-            padding: '0.75rem 1.8rem',
-            background: 'linear-gradient(90deg, rgba(52, 152, 219, 0.9) 0%, rgba(109, 213, 250, 0.9) 100%)',
-            color: '#fff',
-            border: '2px solid rgba(52, 152, 219, 0.8)',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            boxShadow: '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            transform: 'scale(1) translateY(0px)',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-            backdropFilter: 'blur(12px)'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.boxShadow = '0 0 20px rgba(52, 152, 219, 0.6), 0 12px 20px rgba(0,0,0,0.4)';
-            e.target.style.transform = 'scale(1.05) translateY(-3px)';
-            e.target.style.borderColor = 'rgba(52, 152, 219, 1)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.boxShadow = '0 0 15px rgba(52, 152, 219, 0.4), 0 8px 15px rgba(0,0,0,0.3)';
-            e.target.style.transform = 'scale(1) translateY(0px)';
-            e.target.style.borderColor = 'rgba(52, 152, 219, 0.8)';
-          }}
+          style={getBaseButtonStyle(buttonColors.primary)}
+          {...getButtonHoverHandlers('rgba(52, 152, 219, 0.8)', 'rgba(52, 152, 219, 1)')}
         >
           Set Budget
         </button>

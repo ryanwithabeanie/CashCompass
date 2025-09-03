@@ -1,9 +1,9 @@
 import WeeklyPlannerCard from '../WeeklyPlannerCard';
 
-function Planner() {
+function Planner({ user }) {
   return (
     <div style={{ width: '100%', marginBottom: '2rem' }}>
-      <WeeklyPlannerCard />
+      <WeeklyPlannerCard user={user} />
     </div>
   );
 }
