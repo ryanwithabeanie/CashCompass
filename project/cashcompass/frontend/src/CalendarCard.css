@@ -101,8 +101,9 @@
   color: #222 !important;
 }
 
-/* Weekend styling */
-.financial-calendar .react-calendar__month-view__days__day--weekend {
+/* Weekend styling - Friday and Saturday (5th and 6th columns in Sunday-start calendar) */
+.financial-calendar .react-calendar__month-view__days__day:nth-child(7n+6),
+.financial-calendar .react-calendar__month-view__days__day:nth-child(7n+7) {
   color: #666 !important;
 }
 

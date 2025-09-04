@@ -82,6 +82,7 @@ export default function CalendarCard({ entries = [], onDateClick }) {
       <div className="calendar-wrapper">
         <Calendar
           className="financial-calendar"
+          calendarType="gregory"
           onClickDay={onDateClick}
           tileClassName={({ date, view }) => {
             if (view === 'month') {
