@@ -222,6 +222,12 @@ function App() {
   };
 
   const generateNewSummary = async () => {
+    // Prevent multiple simultaneous requests
+    if (summaryLoading || isGeneratingSummary) {
+      console.log('Summary request already in progress, skipping...');
+      return;
+    }
+
     setIsGeneratingSummary(true);
     setSummaryLoading(true);
     setSummaryError('');
@@ -229,22 +235,37 @@ function App() {
     try {
       const summaryData = await fetchSummary();
       if (summaryData) {
-        // Check if the API returned an error about daily limit
+        // Check if the API returned an error about daily limit, but still has financial data
         if (summaryData.error && summaryData.error.toLowerCase().includes('daily limit')) {
-          setSummaryError('OpenRouter API daily limit reached. Please try again tomorrow.');
-          setSummary(null);
+          // Show error message but still display the financial data if available
+          setSummaryError('AI insights unavailable due to daily limit. Showing financial data only.');
+          setSummary(summaryData); // Still set the summary data (financial numbers)
+          
+          // Save summary with user ID
+          if (user?.id) {
+            localStorage.setItem("lastSummary", JSON.stringify(summaryData));
+            localStorage.setItem("lastSummaryUserId", user.id);
+            localStorage.setItem("lastSummaryTime", Date.now().toString());
+          }
           return;
         }
 
-        // Also check if the aiComment indicates a rate limit or API error
+        // Check if the aiComment indicates a rate limit or API error, but still show financial data
         if (summaryData.aiComment && 
             (summaryData.aiComment.toLowerCase().includes('daily limit') ||
              summaryData.aiComment.toLowerCase().includes('rate limit') ||
              summaryData.aiComment.toLowerCase().includes('unavailable') ||
              summaryData.aiComment.toLowerCase().includes('high demand') ||
              summaryData.aiComment.toLowerCase().includes('experiencing'))) {
-          setSummaryError(summaryData.aiComment);
-          setSummary(null);
+          setSummaryError('AI insights temporarily unavailable. Showing financial data only.');
+          setSummary(summaryData); // Still set the summary data (financial numbers)
+          
+          // Save summary with user ID
+          if (user?.id) {
+            localStorage.setItem("lastSummary", JSON.stringify(summaryData));
+            localStorage.setItem("lastSummaryUserId", user.id);
+            localStorage.setItem("lastSummaryTime", Date.now().toString());
+          }
           return;
         }
         

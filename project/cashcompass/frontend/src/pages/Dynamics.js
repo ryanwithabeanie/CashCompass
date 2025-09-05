@@ -505,15 +505,16 @@ function Dynamics({
         
         {summaryError && (
           <div style={{
-            backgroundColor: '#fff3f3',
+            backgroundColor: summary ? '#fff8e1' : '#fff3f3',
             padding: '1rem',
             borderRadius: '8px',
-            border: '1px solid #ffcccc',
-            color: '#cc0000',
+            border: summary ? '1px solid #ffcc02' : '1px solid #ffcccc',
+            color: summary ? '#e65100' : '#cc0000',
             fontStyle: 'italic',
             marginBottom: '1rem'
           }}>
-            {summaryError}
+            ⚠️ {summaryError}
+            {summary && <span style={{ fontWeight: 'bold' }}> Financial data is shown below.</span>}
           </div>
         )}
         

@@ -1,11 +1,24 @@
 const API = "http://localhost:5000/api/entries/summary";
 
+// Rate limiting to prevent too many requests
+let lastRequestTime = 0;
+const RATE_LIMIT_MS = 5000; // 5 seconds between requests
+
 function authHeaders() {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export async function fetchSummary() {
+  // Check rate limiting
+  const now = Date.now();
+  if (now - lastRequestTime < RATE_LIMIT_MS) {
+    const remainingTime = Math.ceil((RATE_LIMIT_MS - (now - lastRequestTime)) / 1000);
+    throw new Error(`Please wait ${remainingTime} seconds before requesting another summary`);
+  }
+  
+  lastRequestTime = now;
+
   // Create an AbortController to handle timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
